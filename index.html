@@ -3115,7 +3115,7 @@ img {
                 <ul class="game-rules">
                   <li><strong>🧨 限時傳炸彈：</strong>炸彈會隨機爆炸！拿到炸彈快點別人頭像「甩鍋」，爆炸瞬間在誰手上誰受罰。</li>
                   <li><strong>🏎️ 動物狂點賽車：</strong>倒數 3、2、1 後瘋狂連點「⚡ 加速」，跑最後一名就是買單苦主！</li>
-                  <li><strong>🪜 小朋友下樓梯：</strong>踩到會站穩，左右走到邊緣才下樓；上方會往下擠，待太久出局。每平安過 10 階速度加快一點。可選「單人」或「連線」。</li>
+                  <li><strong>🪜 小朋友下樓梯：</strong>踩到會站穩，走到邊緣才下樓；上方會擠、掉出框底也出局。每 10 階加快，之後階梯會變短並左右移動。可選「單人」或「連線」。</li>
                 </ul>
               </article>
             </div>
@@ -4835,8 +4835,10 @@ window.TRIP_DATA = {
 
     let raf = 0;
     let moveDir = 0;
+    let lastDir = 0;
     let holdLeft = false;
     let holdRight = false;
+    const keyHeld = new Set();
     let world = null;
 
     function onlineReady() {
@@ -4918,10 +4920,19 @@ window.TRIP_DATA = {
     }
 
     function newPlatform(y, floor) {
-      const w = 84 + Math.floor(Math.random() * 52);
+      // 階梯偏短；越高越再縮一點
+      const tier = Math.floor(floor / 10);
+      const baseW = 48 + Math.floor(Math.random() * 28); // 48–75
+      const w = Math.max(36, baseW - Math.min(14, tier * 3));
       const x = Math.floor(Math.random() * Math.max(1, W - w - 8)) + 4;
-      const spike = floor > 4 && Math.random() < Math.min(0.2, 0.07 + floor * 0.01);
-      return { x, y, w, h: 12, spike, floor };
+      const spike = floor > 4 && Math.random() < Math.min(0.22, 0.07 + floor * 0.01);
+      // 第 10 階後開始左右移動，越高越常、越快
+      let vx = 0;
+      if (tier >= 1 && Math.random() < Math.min(0.9, 0.4 + tier * 0.18)) {
+        const speed = 0.7 + tier * 0.28 + Math.random() * 0.45;
+        vx = Math.random() < 0.5 ? -speed : speed;
+      }
+      return { x, y, w, h: 12, spike, floor, vx };
     }
 
     function resetWorld() {
@@ -5031,41 +5042,77 @@ window.TRIP_DATA = {
       const nextStep = Math.floor(world.maxFloor / 10);
       if (nextStep > prevStep && statusEl && stairsApi.phase === "playing") {
         statusEl.hidden = false;
-        statusEl.textContent = `平安過 ${nextStep * 10} 階！速度加快一點`;
+        statusEl.textContent =
+          nextStep >= 1
+            ? `平安過 ${nextStep * 10} 階！加快了，階梯開始左右移動`
+            : `平安過 ${nextStep * 10} 階！速度加快一點`;
       }
       broadcastProgress();
     }
 
-    // 每平安度過 10 階加快一點（有上限）
+    // 每平安度過 10 階加快一點（有上限）；後期階梯也會左右移動
     function difficulty() {
       const floor = world ? world.maxFloor || 0 : 0;
       const steps = Math.min(8, Math.floor(floor / 10)); // 0→10→20…最多 8 段
       return {
         level: steps / 8,
         steps,
-        move: 2.05 + steps * 0.12,
-        gravity: 0.15 + steps * 0.012,
-        maxFall: 4.5 + steps * 0.28,
-        stepOff: 0.55 + steps * 0.045,
-        pressure: 0.4 + steps * 0.14,
-        gap: Math.max(54, Math.round(70 - steps * 1.6)),
+        move: 2.85 + steps * 0.26,
+        gravity: 0.18 + steps * 0.02,
+        maxFall: 5.4 + steps * 0.38,
+        stepOff: 0.62 + steps * 0.05,
+        pressure: 0.5 + steps * 0.2,
+        gap: Math.max(52, Math.round(68 - steps * 1.8)),
       };
+    }
+
+    function refreshMoveDir() {
+      const left = holdLeft || keyHeld.has("L");
+      const right = holdRight || keyHeld.has("R");
+      if (left && right) {
+        // 同時按：跟最後按下的方向走，避免貼牆後按反向被鎖死
+        moveDir = lastDir || 0;
+      } else if (left) {
+        moveDir = -1;
+      } else if (right) {
+        moveDir = 1;
+      } else {
+        moveDir = 0;
+      }
     }
 
     function step() {
       if (!world || world.dead) return;
       world.tick++;
       const diff = difficulty();
-      const speed =
-        holdLeft || moveDir < 0 ? -diff.move : holdRight || moveDir > 0 ? diff.move : 0;
-      world.px += speed;
+      refreshMoveDir();
+      world.px += moveDir * diff.move;
       if (world.px < 10) world.px = 10;
       if (world.px > W - 10) world.px = W - 10;
+
+      // 階梯左右移動（關卡升高後）
+      for (const p of world.platforms) {
+        if (!p.vx) continue;
+        p.x += p.vx;
+        if (p.x < 4) {
+          p.x = 4;
+          p.vx = Math.abs(p.vx);
+        } else if (p.x + p.w > W - 4) {
+          p.x = W - 4 - p.w;
+          p.vx = -Math.abs(p.vx);
+        }
+      }
+      // 站在移動階上會跟著漂
+      if (world.ground && world.ground.vx) {
+        world.px += world.ground.vx;
+        if (world.px < 10) world.px = 10;
+        if (world.px > W - 10) world.px = W - 10;
+      }
 
       // 站在樓梯上：不會穿越，要左右走到邊緣才落下
       if (world.ground) {
         const g = world.ground;
-        const stillOn = world.px >= g.x && world.px <= g.x + g.w;
+        const stillOn = world.px >= g.x - 1 && world.px <= g.x + g.w + 1;
         if (stillOn) {
           world.py = g.y - 10;
           world.pvy = 0;
@@ -5124,11 +5171,14 @@ window.TRIP_DATA = {
       }
       world.platforms = world.platforms.filter((p) => p.y > world.cam - 60);
 
-      // 持續往下擠的鏡頭壓力：待太久會被頂部尖刺擠掉；存活越久緩慢加快
+      // 持續往下擠；自由落體時不完全跟著追，才會有掉出框底的緊張感
       world.cam += diff.pressure;
-      const followCam = world.py - H * 0.4;
-      if (followCam > world.cam) {
-        world.cam += (followCam - world.cam) * 0.16;
+      const screenY = world.py - world.cam;
+      if (world.onGround || screenY < H * 0.7) {
+        const followCam = world.py - H * 0.42;
+        if (followCam > world.cam) {
+          world.cam += (followCam - world.cam) * 0.18;
+        }
       }
 
       // 背脊貼到最上層尖刺 → 出局
@@ -5137,8 +5187,9 @@ window.TRIP_DATA = {
         return;
       }
 
-      if (world.py - world.cam > H + 40) {
-        die("掉出畫面");
+      // 掉出畫框底部 → 出局
+      if (world.py - world.cam > H - 4) {
+        die("掉出框外！");
         return;
       }
       draw();
@@ -5288,7 +5339,7 @@ window.TRIP_DATA = {
       if (resultEl) resultEl.hidden = true;
       if (statusEl) {
         statusEl.hidden = false;
-        statusEl.textContent = "踩到會站穩；上方會擠；每 10 階加快一點！";
+        statusEl.textContent = "走到邊緣才下樓；掉出框底也出局；每 10 階加快、階梯會左右移！";
       }
       startBtn.hidden = true;
       draw();
@@ -5339,7 +5390,8 @@ window.TRIP_DATA = {
     function setHold(dir, on) {
       if (dir < 0) holdLeft = on;
       if (dir > 0) holdRight = on;
-      moveDir = holdLeft && !holdRight ? -1 : holdRight && !holdLeft ? 1 : 0;
+      if (on) lastDir = dir;
+      refreshMoveDir();
     }
 
     const leftBtn = document.getElementById("stairs-left");
@@ -5351,6 +5403,11 @@ window.TRIP_DATA = {
       if (!btn) return;
       const down = (e) => {
         e.preventDefault();
+        try {
+          btn.setPointerCapture(e.pointerId);
+        } catch (_) {
+          /* ignore */
+        }
         setHold(dir, true);
       };
       const up = (e) => {
@@ -5359,35 +5416,60 @@ window.TRIP_DATA = {
       };
       btn.addEventListener("pointerdown", down);
       btn.addEventListener("pointerup", up);
-      btn.addEventListener("pointerleave", up);
       btn.addEventListener("pointercancel", up);
+      btn.addEventListener("lostpointercapture", up);
     });
 
-    canvas.addEventListener(
-      "pointerdown",
-      (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        setHold(x < rect.width / 2 ? -1 : 1, true);
-      },
-      { passive: true }
-    );
-    const clearHold = () => {
+    canvas.addEventListener("pointerdown", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const dir = x < rect.width / 2 ? -1 : 1;
+      try {
+        canvas.setPointerCapture(e.pointerId);
+      } catch (_) {
+        /* ignore */
+      }
+      setHold(dir, true);
+    });
+    const clearCanvasHold = () => {
+      holdLeft = false;
+      holdRight = false;
+      refreshMoveDir();
+    };
+    canvas.addEventListener("pointerup", clearCanvasHold);
+    canvas.addEventListener("pointercancel", clearCanvasHold);
+    canvas.addEventListener("lostpointercapture", clearCanvasHold);
+
+    window.addEventListener("keydown", (e) => {
+      const left = e.key === "ArrowLeft" || e.key === "a" || e.key === "A";
+      const right = e.key === "ArrowRight" || e.key === "d" || e.key === "D";
+      if (!left && !right) return;
+      e.preventDefault();
+      if (e.repeat) return;
+      if (left) {
+        keyHeld.add("L");
+        lastDir = -1;
+      }
+      if (right) {
+        keyHeld.add("R");
+        lastDir = 1;
+      }
+      refreshMoveDir();
+    });
+    window.addEventListener("keyup", (e) => {
+      const left = e.key === "ArrowLeft" || e.key === "a" || e.key === "A";
+      const right = e.key === "ArrowRight" || e.key === "d" || e.key === "D";
+      if (!left && !right) return;
+      e.preventDefault();
+      if (left) keyHeld.delete("L");
+      if (right) keyHeld.delete("R");
+      refreshMoveDir();
+    });
+    window.addEventListener("blur", () => {
+      keyHeld.clear();
       holdLeft = false;
       holdRight = false;
       moveDir = 0;
-    };
-    canvas.addEventListener("pointerup", clearHold);
-    canvas.addEventListener("pointercancel", clearHold);
-    canvas.addEventListener("pointerleave", clearHold);
-
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "a") setHold(-1, true);
-      if (e.key === "ArrowRight" || e.key === "d") setHold(1, true);
-    });
-    window.addEventListener("keyup", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "a") setHold(-1, false);
-      if (e.key === "ArrowRight" || e.key === "d") setHold(1, false);
     });
 
     // idle preview frame
