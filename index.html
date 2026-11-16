@@ -725,6 +725,25 @@ img {
   font-size: 0.74rem;
 }
 
+.pax-table .pax-name .pax-nick {
+  display: block;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+.pax-table .pax-name .pax-en {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  font-weight: 500;
+  margin-top: 0.12rem;
+}
+
+.pax-table tr.is-me {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
 .pax-table .pax-name {
   font-weight: 600;
   word-break: break-word;
@@ -3234,10 +3253,10 @@ window.TRIP_DATA = {
       seatsAssigned: true,
       baggageSummary: "每人：託運 20kg、隨身 7kg（內含）",
       passengers: [
-        { name: "TZU HSUAN LIU", seat: "39C", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
-        { name: "CHIA HUI LIN", seat: "39D", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
-        { name: "TING YI CHIANG", seat: "39E", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
-        { name: "SHIH HUI KUO", seat: "39F", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
+        { name: "TZU HSUAN LIU", nick: "阿萱", seat: "39C", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
+        { name: "CHIA HUI LIN", nick: "茶米", seat: "39D", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
+        { name: "TING YI CHIANG", nick: "阿亭", seat: "39E", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
+        { name: "SHIH HUI KUO", nick: "阿瓜", seat: "39F", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
       ],
       note: "抵達後辦理入境，接南海電鐵 Rapi:t 直達難波。",
     },
@@ -3268,10 +3287,10 @@ window.TRIP_DATA = {
       seatsAssigned: false,
       baggageSummary: "每人：託運 20kg（已加購）、手提 7kg（已加購）",
       passengers: [
-        { name: "LIN CHIA HUI", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
-        { name: "TZU HSUAN LIU", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
-        { name: "TING YI CHIANG", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
-        { name: "SHIH HUI KUO", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
+        { name: "CHIA HUI LIN", nick: "茶米", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
+        { name: "TZU HSUAN LIU", nick: "阿萱", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
+        { name: "TING YI CHIANG", nick: "阿亭", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
+        { name: "SHIH HUI KUO", nick: "阿瓜", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
       ],
       note: "建議 12:20 前抵達機場，預留安檢與免稅補貨時間。捷星可於出發前 48 小時網上預辦登機與選位。",
     },
@@ -4051,9 +4070,11 @@ window.TRIP_DATA = {
     });
   }
 
-  function renderFlights() {
+  function renderFlights(opts) {
     const root = document.getElementById("flights-root");
     if (!root) return;
+    const keepSlide =
+      opts && Number.isFinite(opts.slideIndex) ? Number(opts.slideIndex) : null;
     const flights = DATA.flights || [];
     const slides = flights
       .map(
@@ -4080,8 +4101,34 @@ window.TRIP_DATA = {
         <p class="flight-swipe-hint">左右滑切換去程／回程</p>
       </div>`;
     bindFlightSlider();
-    const initial = defaultFlightSlideIndex();
+    const initial = keepSlide != null ? keepSlide : defaultFlightSlideIndex();
     requestAnimationFrame(() => scrollFlightTo(initial, false));
+  }
+
+  window.__tripRefreshFlights = function refreshFlightsForMember() {
+    const active = document.querySelector(".flight-dot.is-active");
+    const slideIndex = active ? Number(active.dataset.flightDot) : 0;
+    renderFlights({ slideIndex });
+    if (typeof decorateCardStickers === "function") decorateCardStickers();
+  };
+
+  const FLIGHT_NICK_AVATAR = {
+    阿瓜: "🦆",
+    阿萱: "🐤",
+    阿亭: "🐵",
+    茶米: "🐶",
+  };
+
+  function flightNickAvatar(nick) {
+    return FLIGHT_NICK_AVATAR[nick] || "";
+  }
+
+  function currentFlightMember() {
+    try {
+      return localStorage.getItem("fk18-member") || "";
+    } catch {
+      return "";
+    }
   }
 
   function flightCard(f) {
@@ -4101,22 +4148,38 @@ window.TRIP_DATA = {
       ? '<span class="bp-seat-badge is-set">已指定座位</span>'
       : '<span class="bp-seat-badge is-open">尚未指定座位・需網上選位</span>';
 
+    const me = currentFlightMember();
     const paxRows = (f.passengers || [])
-      .map(
-        (p) => `
-        <tr>
-          <td class="pax-name">${escapeHtml(p.name)}</td>
+      .map((p) => {
+        const nick = p.nick || "";
+        const av = flightNickAvatar(nick);
+        const isMe = me && nick === me;
+        const nickLine = nick
+          ? `<span class="pax-nick">${av ? escapeHtml(av) + " " : ""}${escapeHtml(
+              nick
+            )}</span>`
+          : "";
+        return `
+        <tr class="${isMe ? "is-me" : ""}">
+          <td class="pax-name">${nickLine}<span class="pax-en">${escapeHtml(
+            p.name
+          )}</span></td>
           <td class="pax-seat">${escapeHtml(p.seat || "—")}</td>
           <td class="pax-bag">${escapeHtml(p.checked || "")}${
           p.carry ? " / " + escapeHtml(p.carry) : ""
         }</td>
-        </tr>`
-      )
+        </tr>`;
+      })
       .join("");
 
-    const firstSeat =
+    const mine = (f.passengers || []).find((p) => me && p.nick === me);
+    const fallbackSeat =
       ((f.passengers || []).find((p) => p.seat && p.seat !== "現場選位") || {})
         .seat || (f.seatsAssigned ? "—" : "TBA");
+    const stubSeat = mine ? mine.seat || "—" : fallbackSeat;
+    const stubPax = mine
+      ? `${flightNickAvatar(mine.nick) || ""} ${mine.nick}`.trim()
+      : "PASSENGER";
     const isReturn = f.id === "return" || f.direction === "回程";
 
     return `
@@ -4179,10 +4242,11 @@ window.TRIP_DATA = {
             <div class="bp-stub-flight">${escapeHtml(f.flightNo)}</div>
           </div>
           <div class="bp-stub-meta">
+            <div><span>Passenger</span><strong>${escapeHtml(stubPax)}</strong></div>
             <div><span>Date</span><strong>${escapeHtml(
               formatDisplayDate(f.date)
             )}</strong></div>
-            <div><span>Seat</span><strong>${escapeHtml(firstSeat)}</strong></div>
+            <div><span>Seat</span><strong>${escapeHtml(stubSeat)}</strong></div>
             <div><span>${escapeHtml(f.fromCode)}</span> → <span>${escapeHtml(
               f.toCode
             )}</span></div>
@@ -5947,6 +6011,14 @@ window.TRIP_DATA = {
   }
   function setMember(name) {
     localStorage.setItem(MEMBER_KEY, name.trim());
+    // 切換身分後，登機證票根座位改成對應這個人
+    if (typeof window.__tripRefreshFlights === "function") {
+      try {
+        window.__tripRefreshFlights();
+      } catch (_) {
+        /* ignore */
+      }
+    }
   }
 
   // ---------- lightweight name modal ----------
