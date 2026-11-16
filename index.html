@@ -4734,9 +4734,9 @@ window.TRIP_DATA = {
     }
 
     function newPlatform(y, floor) {
-      const w = 72 + Math.floor(Math.random() * 46);
+      const w = 84 + Math.floor(Math.random() * 52);
       const x = Math.floor(Math.random() * Math.max(1, W - w - 8)) + 4;
-      const spike = floor > 4 && Math.random() < Math.min(0.22, 0.08 + floor * 0.01);
+      const spike = floor > 4 && Math.random() < Math.min(0.2, 0.07 + floor * 0.01);
       return { x, y, w, h: 12, spike, floor };
     }
 
@@ -4745,7 +4745,7 @@ window.TRIP_DATA = {
       let y = 120;
       for (let i = 0; i < 12; i++) {
         platforms.push(newPlatform(y, i));
-        y += 62 + Math.floor(Math.random() * 14);
+        y += 68 + Math.floor(Math.random() * 16);
       }
       const first = platforms[0];
       world = {
@@ -4757,6 +4757,7 @@ window.TRIP_DATA = {
         maxFloor: 0,
         dead: false,
         onGround: true,
+        ground: first,
         cam: Math.max(0, first.y - H * 0.35),
         tick: 0,
       };
@@ -4824,44 +4825,64 @@ window.TRIP_DATA = {
       c.closePath();
     }
 
+    function markFloor(p) {
+      if (!p || p.floor <= world.maxFloor) return;
+      world.maxFloor = p.floor;
+      world.floor = p.floor;
+      if (floorEl) floorEl.textContent = String(world.floor);
+      broadcastProgress();
+    }
+
     function step() {
       if (!world || world.dead) return;
       world.tick++;
-      const speed = holdLeft || moveDir < 0 ? -2.05 : holdRight || moveDir > 0 ? 2.05 : 0;
+      const speed = holdLeft || moveDir < 0 ? -2.15 : holdRight || moveDir > 0 ? 2.15 : 0;
       world.px += speed;
       if (world.px < 10) world.px = 10;
       if (world.px > W - 10) world.px = W - 10;
 
-      world.pvy += 0.15;
-      if (world.pvy > 4.6) world.pvy = 4.6;
-      world.py += world.pvy;
-      world.onGround = false;
-
-      for (const p of world.platforms) {
-        if (p.used) continue;
-        const withinX = world.px > p.x - 2 && world.px < p.x + p.w + 2;
-        const feet = world.py + 10;
-        if (
-          withinX &&
-          world.pvy >= 0 &&
-          feet >= p.y &&
-          feet <= p.y + p.h + 10 &&
-          world.py < p.y + 6
-        ) {
-          if (p.spike) {
-            die("踩到刺了");
-            return;
-          }
-          // 踩到後短暫站穩再往下掉（經典下樓梯手感，速度放慢）
-          world.py = p.y - 10;
-          world.pvy = 0.85;
+      // 站在樓梯上：不會穿越，要左右走到邊緣才落下
+      if (world.ground) {
+        const g = world.ground;
+        const stillOn = world.px >= g.x && world.px <= g.x + g.w;
+        if (stillOn) {
+          world.py = g.y - 10;
+          world.pvy = 0;
           world.onGround = true;
-          p.used = true;
-          if (p.floor > world.maxFloor) {
-            world.maxFloor = p.floor;
-            world.floor = p.floor;
-            if (floorEl) floorEl.textContent = String(world.floor);
-            broadcastProgress();
+          markFloor(g);
+        } else {
+          world.ground = null;
+          world.onGround = false;
+          world.pvy = 0.6;
+        }
+      }
+
+      if (!world.ground) {
+        world.pvy += 0.16;
+        if (world.pvy > 4.8) world.pvy = 4.8;
+        world.py += world.pvy;
+        world.onGround = false;
+
+        for (const p of world.platforms) {
+          const withinX = world.px >= p.x && world.px <= p.x + p.w;
+          const feet = world.py + 10;
+          if (
+            withinX &&
+            world.pvy >= 0 &&
+            feet >= p.y &&
+            feet <= p.y + p.h + 10 &&
+            world.py <= p.y + 6
+          ) {
+            if (p.spike) {
+              die("踩到刺了");
+              return;
+            }
+            world.py = p.y - 10;
+            world.pvy = 0;
+            world.onGround = true;
+            world.ground = p;
+            markFloor(p);
+            break;
           }
         }
       }
@@ -4870,14 +4891,14 @@ window.TRIP_DATA = {
       let guard = 0;
       while (
         world.platforms.length &&
-        world.py > Math.max(...world.platforms.map((p) => p.y)) - 160 &&
+        world.py > Math.max(...world.platforms.map((p) => p.y)) - 180 &&
         guard++ < 6
       ) {
         const nextFloor = Math.max(...world.platforms.map((p) => p.floor)) + 1;
         const ny =
           Math.max(...world.platforms.map((p) => p.y)) +
-          62 +
-          Math.floor(Math.random() * 14);
+          68 +
+          Math.floor(Math.random() * 16);
         world.platforms.push(newPlatform(ny, nextFloor));
       }
       world.platforms = world.platforms.filter((p) => p.y > world.cam - 60);
@@ -5036,7 +5057,7 @@ window.TRIP_DATA = {
       if (resultEl) resultEl.hidden = true;
       if (statusEl) {
         statusEl.hidden = false;
-        statusEl.textContent = "往下跳！點左／右移動";
+        statusEl.textContent = "踩到樓梯會站穩，左右走到邊緣再下樓";
       }
       startBtn.hidden = true;
       draw();
