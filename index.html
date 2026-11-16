@@ -447,6 +447,77 @@ img {
   --bp-band: #8a641b;
 }
 
+/* Flight boarding-pass swipe carousel */
+.flight-slider-wrap {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.flight-slider {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.15rem 0.1rem 0.35rem;
+  margin: 0 -0.1rem;
+  scrollbar-width: none;
+}
+
+.flight-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.flight-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.flight-slide .boarding-pass {
+  width: 100%;
+  transform: none;
+}
+
+.flight-slide .boarding-pass:hover {
+  transform: translateY(-2px);
+}
+
+.flight-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.flight-dot {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.flight-dot.is-active {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, #fff 0%, #fff2ec 100%);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.flight-swipe-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
 .bp-main {
   display: grid;
   gap: 0.7rem;
@@ -3907,9 +3978,108 @@ window.TRIP_DATA = {
     });
   }
 
+  function defaultFlightSlideIndex() {
+    const days = DATA.days || [];
+    const today = days.find((d) => d.date === todayIso);
+    if (today) return Number(today.day) >= 6 ? 1 : 0;
+    if (DATA.trip.endDate && todayIso >= DATA.trip.endDate) return 1;
+    return 0;
+  }
+
+  function updateFlightDots(activeIndex) {
+    document.querySelectorAll("[data-flight-dot]").forEach((btn) => {
+      const on = Number(btn.dataset.flightDot) === Number(activeIndex);
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-selected", String(on));
+    });
+  }
+
+  function scrollFlightTo(index, smooth) {
+    const slider = document.getElementById("flight-slider");
+    if (!slider) return;
+    const slides = slider.querySelectorAll(".flight-slide");
+    const i = Math.max(0, Math.min(slides.length - 1, Number(index) || 0));
+    const target = slides[i];
+    if (!target) return;
+    const left = target.offsetLeft;
+    if (typeof slider.scrollTo === "function") {
+      slider.scrollTo({ left, behavior: smooth ? "smooth" : "auto" });
+    } else {
+      slider.scrollLeft = left;
+    }
+    updateFlightDots(i);
+  }
+
+  function bindFlightSlider() {
+    const slider = document.getElementById("flight-slider");
+    if (!slider || slider.dataset.bound === "1") return;
+    slider.dataset.bound = "1";
+
+    let ticking = false;
+    slider.addEventListener(
+      "scroll",
+      () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+          const slides = [...slider.querySelectorAll(".flight-slide")];
+          if (!slides.length) return;
+          const x = slider.scrollLeft + slider.clientWidth / 2;
+          let best = 0;
+          let bestDist = Infinity;
+          slides.forEach((slide, idx) => {
+            const mid = slide.offsetLeft + slide.offsetWidth / 2;
+            const dist = Math.abs(mid - x);
+            if (dist < bestDist) {
+              bestDist = dist;
+              best = idx;
+            }
+          });
+          updateFlightDots(best);
+        });
+      },
+      { passive: true }
+    );
+
+    document.querySelectorAll("[data-flight-dot]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        scrollFlightTo(Number(btn.dataset.flightDot), true);
+      });
+    });
+  }
+
   function renderFlights() {
     const root = document.getElementById("flights-root");
-    root.innerHTML = DATA.flights.map((f) => flightCard(f)).join("");
+    if (!root) return;
+    const flights = DATA.flights || [];
+    const slides = flights
+      .map(
+        (f, idx) =>
+          `<div class="flight-slide" data-flight-index="${idx}" data-flight-id="${escapeHtml(
+            f.id || ""
+          )}">${flightCard(f)}</div>`
+      )
+      .join("");
+    const dots = flights
+      .map((f, idx) => {
+        const label = f.direction || (idx === 0 ? "去程" : "回程");
+        return `<button type="button" class="flight-dot" data-flight-dot="${idx}" role="tab" aria-selected="false">${escapeHtml(
+          label
+        )}</button>`;
+      })
+      .join("");
+    root.innerHTML = `
+      <div class="flight-slider-wrap">
+        <div class="flight-slider" id="flight-slider" tabindex="0" aria-label="航班登機證，可左右滑動">
+          ${slides}
+        </div>
+        <div class="flight-dots" role="tablist" aria-label="切換去程或回程">${dots}</div>
+        <p class="flight-swipe-hint">左右滑切換去程／回程</p>
+      </div>`;
+    bindFlightSlider();
+    const initial = defaultFlightSlideIndex();
+    requestAnimationFrame(() => scrollFlightTo(initial, false));
   }
 
   function flightCard(f) {
@@ -4356,6 +4526,9 @@ window.TRIP_DATA = {
     document.querySelectorAll(".day-panel").forEach((panel) => {
       panel.classList.toggle("is-active", Number(panel.dataset.dayPanel) === target);
     });
+    // Day1 → 去程登機證；Day6 → 回程登機證（仍可左右滑切換）
+    if (target === 1) scrollFlightTo(0, true);
+    if (target === 6) scrollFlightTo(1, true);
   }
 
   // Expose for reliable tab switching (also used by inline handlers)
