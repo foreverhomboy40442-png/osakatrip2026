@@ -2355,9 +2355,349 @@ img {
   .card-sticker,
   .hero-status,
   .shared-avatar,
-  .board-body.is-sticker-msg {
+  .board-body.is-sticker-msg,
+  .bomb-hot,
+  .game-presence-dot.is-online {
     animation: none !important;
   }
+}
+
+/* ===== 打發遊戲 ===== */
+.games-hint-personal,
+.games-hint-shared {
+  margin: 0 0 0.85rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.games-wrap {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.game-subtabs {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.15rem;
+  scrollbar-width: thin;
+}
+
+.game-subtab {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.88rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.game-subtab.is-active {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, #fff 0%, #fff2ec 100%);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.game-panel {
+  display: none;
+  gap: 0.75rem;
+}
+
+.game-panel.is-active {
+  display: grid;
+}
+
+.game-note h3 {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.game-steps,
+.game-rules {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.45rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.game-rules {
+  list-style: none;
+  padding-left: 0;
+}
+
+.game-rules li {
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: #fffdfb;
+}
+
+.game-tip {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+}
+
+.game-presence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.game-presence-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  opacity: 0.55;
+}
+
+.game-presence-chip.is-online {
+  opacity: 1;
+  color: var(--ink);
+  border-color: color-mix(in srgb, #2f9e6a 40%, var(--line));
+  background: #f4fbf7;
+}
+
+.game-presence-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #c9c4bc;
+}
+
+.game-presence-chip.is-online .game-presence-dot {
+  background: #2f9e6a;
+  box-shadow: 0 0 0 3px rgba(47, 158, 106, 0.18);
+  animation: softBounce 1.6s ease-in-out infinite;
+}
+
+.game-stage {
+  display: grid;
+  gap: 0.85rem;
+  justify-items: stretch;
+}
+
+.game-idle-copy,
+.game-status-copy {
+  margin: 0;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  font-family: var(--font-display);
+}
+
+.bomb-hot {
+  border-color: #e0452c !important;
+  box-shadow: 0 0 0 3px rgba(224, 69, 44, 0.18), 0 8px 24px rgba(224, 69, 44, 0.12);
+  animation: bombPulse 0.7s ease-in-out infinite;
+}
+
+@keyframes bombPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(224, 69, 44, 0.16), 0 6px 18px rgba(224, 69, 44, 0.1); }
+  50% { box-shadow: 0 0 0 6px rgba(224, 69, 44, 0.28), 0 10px 28px rgba(224, 69, 44, 0.18); }
+}
+
+.bomb-pass-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.bomb-pass-btn {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: center;
+  padding: 0.7rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.bomb-pass-btn:active {
+  animation: softSquish 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.bomb-pass-avatar {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.bomb-pass-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.game-result {
+  text-align: center;
+  display: grid;
+  gap: 0.55rem;
+  justify-items: center;
+}
+
+.game-result-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--accent-strong);
+}
+
+.game-result-sub {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--ink);
+}
+
+.race-tracks {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.race-lane {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.race-lane-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.race-lane-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.race-track {
+  position: relative;
+  height: 2.4rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #fff 0,
+      #fff 18px,
+      #f7f3ee 18px,
+      #f7f3ee 36px
+    );
+  overflow: hidden;
+}
+
+.race-racer {
+  position: absolute;
+  top: 50%;
+  left: 0.35rem;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  box-shadow: var(--shadow);
+  transition: left 0.35s linear;
+  z-index: 1;
+}
+
+.race-finish {
+  position: absolute;
+  top: 0;
+  right: 0.45rem;
+  bottom: 0;
+  width: 3px;
+  background: repeating-linear-gradient(
+    180deg,
+    #222 0 4px,
+    #fff 4px 8px
+  );
+  opacity: 0.55;
+}
+
+.race-tap {
+  min-height: 3.4rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+
+.race-tap:active {
+  animation: softSquish 0.28s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.race-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.race-board li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 0.92rem;
+}
+
+.race-board li.is-last {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: #fff6f2;
+}
+
+.race-confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  overflow: hidden;
+}
+
+.race-confetti i {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  animation: confettiFall 1.6s ease-out forwards;
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(540deg); opacity: 0.2; }
 }
 
     </style>
@@ -2392,6 +2732,7 @@ img {
           <a href="#itinerary">行程</a>
           <a href="#transport">交通</a>
           <a href="#expense">記帳</a>
+          <a href="#games">打發遊戲</a>
           <a href="#notes">備忘</a>
         </div>
       </nav>
@@ -2491,6 +2832,60 @@ img {
           </form>
           <div class="expense-totals" id="expense-totals"></div>
           <ul class="expense-list" id="expense-list"></ul>
+        </section>
+
+        <section class="section" id="games">
+          <div class="section-head">
+            <h2>打發遊戲</h2>
+            <p>四人同步小遊戲，等車／排隊時一起玩</p>
+          </div>
+          <p class="games-hint-personal">需用「共享連結」開啟，並選好身分後才能一起玩。</p>
+          <p class="games-hint-shared" hidden>看到上方綠燈「共享已連線」後，切子頁籤就能開玩。</p>
+          <div class="games-wrap" id="games-wrap" hidden>
+            <div class="game-subtabs" role="tablist" aria-label="遊戲子頁籤">
+              <button type="button" class="game-subtab is-active" data-game-tab="how" role="tab" aria-selected="true">📖 怎麼玩</button>
+              <button type="button" class="game-subtab" data-game-tab="bomb" role="tab" aria-selected="false">🧨 限時傳炸彈</button>
+              <button type="button" class="game-subtab" data-game-tab="race" role="tab" aria-selected="false">🏎️ 動物狂點賽車</button>
+            </div>
+
+            <div class="game-panel is-active" data-game-panel="how" role="tabpanel">
+              <article class="card game-note">
+                <h3>🔗 怎麼四人連線？</h3>
+                <ol class="game-steps">
+                  <li>確認網頁最上方顯示綠燈「共享已連線」，並選好自己的動物頭像。</li>
+                  <li>四人同時點進「打發遊戲」，看到頭像亮燈就代表就位！</li>
+                  <li>切換到想玩的遊戲頁籤，任一人按下「開始」，四支手機就會同步開玩（免輸房號）。</li>
+                </ol>
+              </article>
+              <article class="card game-note">
+                <h3>🎮 兩款遊戲規則</h3>
+                <ul class="game-rules">
+                  <li><strong>🧨 限時傳炸彈：</strong>炸彈會隨機爆炸！拿到炸彈快點別人頭像「甩鍋」，爆炸瞬間在誰手上誰受罰。</li>
+                  <li><strong>🏎️ 動物狂點賽車：</strong>倒數 3、2、1 後瘋狂連點「⚡ 加速」，跑最後一名就是買單苦主！</li>
+                </ul>
+              </article>
+            </div>
+
+            <div class="game-panel" data-game-panel="bomb" role="tabpanel" hidden>
+              <div class="game-presence" data-presence-for="bomb"></div>
+              <p class="game-tip">👉 全員進來後，任一人按「開始」即同步開局。</p>
+              <div class="card game-stage" id="bomb-stage">
+                <p class="game-idle-copy">點下方開始，炸彈會隨機出現在某人手上。</p>
+                <button type="button" class="btn btn-primary" id="bomb-start">開始</button>
+              </div>
+            </div>
+
+            <div class="game-panel" data-game-panel="race" role="tabpanel" hidden>
+              <div class="game-presence" data-presence-for="race"></div>
+              <p class="game-tip">👉 大家準備好後，任一人按「發起賽車」開始倒數。</p>
+              <div class="card game-stage" id="race-stage">
+                <div class="race-tracks" id="race-tracks"></div>
+                <p class="game-idle-copy" id="race-status">準備好就發起賽車吧！</p>
+                <button type="button" class="btn btn-primary" id="race-start">發起賽車</button>
+                <button type="button" class="btn btn-primary race-tap" id="race-tap" hidden>⚡ 狂點加速</button>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section class="section" id="notes">
@@ -4287,6 +4682,9 @@ window.TRIP_DATA = {
       renderBar(name);
       renderMentionBar();
       refreshAll();
+      if (typeof trackGamesPresence === "function") {
+        trackGamesPresence(gamesPresenceOn);
+      }
     });
   }
 
@@ -4771,6 +5169,595 @@ window.TRIP_DATA = {
     refreshVotes();
   }
 
+  // ---------- 打發遊戲（Presence + Broadcast，不需新資料表） ----------
+  const BOMB_PUNISHMENTS = [
+    "請喝超商飲料 🏪",
+    "提戰利品 10 分鐘 🛍️",
+    "乾一杯生啤 🍻",
+    "下一餐幫大家點餐 🍜",
+    "當下一段路的導航員 🗺️",
+  ];
+
+  let gameChannel = null;
+  let onlineMembers = new Set();
+  let bombState = { kind: "bomb", phase: "idle" };
+  let raceState = { kind: "race", phase: "idle" };
+  let bombTimer = null;
+  let bombRoundSeen = "";
+  let raceLocalProgress = 0;
+  let raceLastBroadcast = 0;
+  let raceCountdownTimer = null;
+  let raceAnimTimer = null;
+  let gamesPresenceOn = false;
+
+  function newRoundId() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function pickRandom(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function sendGame(payload) {
+    if (!gameChannel) return;
+    gameChannel.send({ type: "broadcast", event: "game", payload });
+  }
+
+  function paintGamePresence() {
+    const members = memberList();
+    document.querySelectorAll("[data-presence-for]").forEach((el) => {
+      el.innerHTML = members
+        .map((name) => {
+          const on = onlineMembers.has(name);
+          return `<span class="game-presence-chip${on ? " is-online" : ""}" title="${
+            on ? "已就位" : "尚未進入"
+          }"><span class="game-presence-dot" aria-hidden="true"></span><span aria-hidden="true">${memberAvatar(
+            name
+          )}</span><span>${esc(name)}</span></span>`;
+        })
+        .join("");
+    });
+  }
+
+  function syncOnlineFromPresence() {
+    if (!gameChannel) return;
+    const state = gameChannel.presenceState();
+    const next = new Set();
+    Object.values(state).forEach((arr) => {
+      (arr || []).forEach((p) => {
+        if (p && p.inGames && p.member) next.add(p.member);
+      });
+    });
+    onlineMembers = next;
+    paintGamePresence();
+  }
+
+  async function trackGamesPresence(active) {
+    gamesPresenceOn = !!active;
+    if (!gameChannel) return;
+    const me = getMember();
+    if (!me) return;
+    try {
+      await gameChannel.track({
+        member: me,
+        inGames: gamesPresenceOn,
+        at: Date.now(),
+      });
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function clearBombTimer() {
+    if (bombTimer) {
+      clearTimeout(bombTimer);
+      bombTimer = null;
+    }
+  }
+
+  function scheduleBombBoom(state) {
+    clearBombTimer();
+    if (!state || state.phase !== "playing" || !state.boomAt) return;
+    const wait = Math.max(0, state.boomAt - Date.now());
+    bombTimer = setTimeout(() => {
+      if (bombState.roundId !== state.roundId || bombState.phase !== "playing") return;
+      const boom = {
+        kind: "bomb",
+        phase: "boom",
+        holder: bombState.holder,
+        punishment: bombState.punishment,
+        roundId: bombState.roundId,
+      };
+      bombState = boom;
+      renderBomb();
+      sendGame(boom);
+    }, wait);
+  }
+
+  function renderBomb() {
+    const stage = document.getElementById("bomb-stage");
+    if (!stage) return;
+    const me = getMember();
+    stage.classList.remove("bomb-hot");
+
+    if (bombState.phase === "idle") {
+      stage.innerHTML = `
+        <p class="game-idle-copy">點下方開始，炸彈會隨機出現在某人手上。</p>
+        <button type="button" class="btn btn-primary" id="bomb-start">開始</button>`;
+      stage.querySelector("#bomb-start").addEventListener("click", startBomb);
+      return;
+    }
+
+    if (bombState.phase === "boom") {
+      stage.innerHTML = `
+        <div class="game-result">
+          <p class="game-result-title">💥 BOOM！${esc(bombState.holder || "")} 被炸飛了！</p>
+          <p class="game-result-sub">小懲罰：${esc(bombState.punishment || pickRandom(BOMB_PUNISHMENTS))}</p>
+          <button type="button" class="btn btn-primary" id="bomb-again">再玩一局</button>
+        </div>`;
+      stage.querySelector("#bomb-again").addEventListener("click", startBomb);
+      return;
+    }
+
+    // playing
+    const holder = bombState.holder || "";
+    const isMe = holder === me;
+    if (isMe) stage.classList.add("bomb-hot");
+    const others = memberList().filter((n) => n !== me);
+    const passRow = isMe
+      ? `<div class="bomb-pass-row">${others
+          .map(
+            (n) =>
+              `<button type="button" class="bomb-pass-btn" data-pass="${esc(n)}"><span class="bomb-pass-avatar" aria-hidden="true">${memberAvatar(
+                n
+              )}</span><span class="bomb-pass-name">${esc(n)}</span></button>`
+          )
+          .join("")}</div>`
+      : `<p class="game-tip" style="text-align:center;margin:0">等持有者甩鍋中…</p>`;
+
+    stage.innerHTML = `
+      <p class="game-status-copy">💣 炸彈在 <strong>${esc(holder)}</strong> 手上！</p>
+      ${
+        isMe
+          ? `<p class="game-tip" style="text-align:center;margin:0">快點別人頭像甩鍋！</p>`
+          : ""
+      }
+      ${passRow}`;
+
+    stage.querySelectorAll("[data-pass]").forEach((btn) => {
+      btn.addEventListener("click", () => passBomb(btn.getAttribute("data-pass")));
+    });
+  }
+
+  function startBomb() {
+    const members = memberList();
+    if (!members.length) return;
+    const next = {
+      kind: "bomb",
+      phase: "playing",
+      holder: pickRandom(members),
+      boomAt: Date.now() + (15000 + Math.floor(Math.random() * 20001)),
+      punishment: pickRandom(BOMB_PUNISHMENTS),
+      roundId: newRoundId(),
+    };
+    bombState = next;
+    bombRoundSeen = next.roundId;
+    renderBomb();
+    scheduleBombBoom(next);
+    sendGame(next);
+  }
+
+  function passBomb(target) {
+    const me = getMember();
+    if (!target || bombState.phase !== "playing" || bombState.holder !== me) return;
+    const next = {
+      ...bombState,
+      holder: target,
+      passedAt: Date.now(),
+    };
+    bombState = next;
+    renderBomb();
+    sendGame(next);
+  }
+
+  function clearRaceTimers() {
+    if (raceCountdownTimer) {
+      clearInterval(raceCountdownTimer);
+      raceCountdownTimer = null;
+    }
+    if (raceAnimTimer) {
+      clearInterval(raceAnimTimer);
+      raceAnimTimer = null;
+    }
+  }
+
+  function ensureRaceTracks() {
+    const host = document.getElementById("race-tracks");
+    if (!host) return;
+    const members = memberList();
+    host.innerHTML = members
+      .map(
+        (name) => `
+      <div class="race-lane" data-racer="${esc(name)}">
+        <div class="race-lane-meta">
+          <span class="race-lane-who"><span aria-hidden="true">${memberAvatar(name)}</span>${esc(name)}</span>
+          <span class="race-pct" data-pct="${esc(name)}">0%</span>
+        </div>
+        <div class="race-track" aria-hidden="true">
+          <span class="race-racer" data-racer-icon="${esc(name)}">${memberAvatar(name)}</span>
+          <span class="race-finish"></span>
+        </div>
+      </div>`
+      )
+      .join("");
+  }
+
+  function paintRaceProgress() {
+    const progress = (raceState && raceState.progress) || {};
+    memberList().forEach((name) => {
+      const pct = Math.max(0, Math.min(100, Number(progress[name]) || 0));
+      let label = null;
+      let icon = null;
+      document.querySelectorAll("[data-pct]").forEach((el) => {
+        if (el.getAttribute("data-pct") === name) label = el;
+      });
+      document.querySelectorAll("[data-racer-icon]").forEach((el) => {
+        if (el.getAttribute("data-racer-icon") === name) icon = el;
+      });
+      if (label) label.textContent = `${Math.round(pct)}%`;
+      if (icon) {
+        const track = icon.parentElement;
+        const max = Math.max(0, (track ? track.clientWidth : 0) - 40);
+        icon.style.left = `${0.35 + (max * pct) / 100}px`;
+      }
+    });
+  }
+
+  function raceOnlinePlayers() {
+    const all = memberList();
+    const online = all.filter((n) => onlineMembers.has(n));
+    return online.length ? online : all;
+  }
+
+  function maybeFinishRace(state) {
+    if (!state || state.phase !== "racing") return state;
+    const players = raceOnlinePlayers();
+    const finished = Array.isArray(state.finished) ? state.finished.slice() : [];
+    players.forEach((n) => {
+      if ((state.progress[n] || 0) >= 100 && !finished.includes(n)) finished.push(n);
+    });
+    const everyoneDone = players.every((n) => (state.progress[n] || 0) >= 100);
+    if (!everyoneDone) return { ...state, finished };
+    const order = finished.slice();
+    players.forEach((n) => {
+      if (!order.includes(n)) order.push(n);
+    });
+    return {
+      ...state,
+      phase: "done",
+      finished: order,
+      progress: { ...state.progress },
+    };
+  }
+
+  function spawnConfetti() {
+    const layer = document.createElement("div");
+    layer.className = "race-confetti";
+    const colors = ["#e0452c", "#f0a500", "#2f9e6a", "#4a7fd4", "#d46ab0"];
+    for (let i = 0; i < 36; i++) {
+      const bit = document.createElement("i");
+      bit.style.left = `${Math.random() * 100}%`;
+      bit.style.background = colors[i % colors.length];
+      bit.style.animationDelay = `${Math.random() * 0.35}s`;
+      bit.style.transform = `rotate(${Math.random() * 180}deg)`;
+      layer.appendChild(bit);
+    }
+    document.body.appendChild(layer);
+    setTimeout(() => layer.remove(), 1800);
+  }
+
+  function renderRace() {
+    const stage = document.getElementById("race-stage");
+    if (!stage) return;
+    ensureRaceTracks();
+    paintRaceProgress();
+
+    let status = document.getElementById("race-status");
+    let startBtn = document.getElementById("race-start");
+    let tapBtn = document.getElementById("race-tap");
+    let result = stage.querySelector(".game-result");
+
+    if (!status) {
+      status = document.createElement("p");
+      status.className = "game-idle-copy";
+      status.id = "race-status";
+      stage.appendChild(status);
+    }
+    if (!startBtn) {
+      startBtn = document.createElement("button");
+      startBtn.type = "button";
+      startBtn.className = "btn btn-primary";
+      startBtn.id = "race-start";
+      startBtn.textContent = "發起賽車";
+      startBtn.addEventListener("click", startRace);
+      stage.appendChild(startBtn);
+    }
+    if (!tapBtn) {
+      tapBtn = document.createElement("button");
+      tapBtn.type = "button";
+      tapBtn.className = "btn btn-primary race-tap";
+      tapBtn.id = "race-tap";
+      tapBtn.textContent = "⚡ 狂點加速";
+      tapBtn.hidden = true;
+      tapBtn.addEventListener("click", tapRace);
+      stage.appendChild(tapBtn);
+    }
+    if (result) result.remove();
+
+    if (raceState.phase === "idle") {
+      status.hidden = false;
+      status.textContent = "準備好就發起賽車吧！";
+      startBtn.hidden = false;
+      startBtn.textContent = "發起賽車";
+      tapBtn.hidden = true;
+      return;
+    }
+
+    if (raceState.phase === "countdown") {
+      status.hidden = false;
+      startBtn.hidden = true;
+      tapBtn.hidden = true;
+      runRaceCountdown();
+      return;
+    }
+
+    if (raceState.phase === "racing") {
+      status.hidden = false;
+      status.textContent = "GO！狂點加速！";
+      startBtn.hidden = true;
+      tapBtn.hidden = false;
+      return;
+    }
+
+    // done
+    status.hidden = true;
+    startBtn.hidden = true;
+    tapBtn.hidden = true;
+    const order = Array.isArray(raceState.finished) ? raceState.finished : [];
+    const board = order
+      .map((name, i) => {
+        const last = i === order.length - 1;
+        return `<li class="${last ? "is-last" : ""}"><span>${i + 1}. ${memberAvatar(name)} ${esc(
+          name
+        )}</span><span>${last ? "本局買單苦主 💸" : i === 0 ? "🥇" : ""}</span></li>`;
+      })
+      .join("");
+    const box = document.createElement("div");
+    box.className = "game-result";
+    box.innerHTML = `
+      <p class="game-result-title">🏁 衝線！</p>
+      <ul class="race-board">${board}</ul>
+      <button type="button" class="btn btn-primary" id="race-again">再比一場</button>`;
+    stage.appendChild(box);
+    box.querySelector("#race-again").addEventListener("click", startRace);
+    if (raceState.roundId && bombRoundSeen !== `race-${raceState.roundId}`) {
+      bombRoundSeen = `race-${raceState.roundId}`;
+      spawnConfetti();
+    }
+  }
+
+  function runRaceCountdown() {
+    clearRaceTimers();
+    const status = document.getElementById("race-status");
+    if (!status || !raceState.goAt) return;
+    const tick = () => {
+      const leftMs = raceState.goAt - Date.now();
+      const left = Math.ceil(leftMs / 1000);
+      if (left > 0) {
+        status.textContent = String(left);
+        return;
+      }
+      if (leftMs > -350) {
+        status.textContent = "GO！";
+        return;
+      }
+      clearRaceTimers();
+      if (raceState.phase !== "countdown") return;
+      const next = {
+        ...raceState,
+        phase: "racing",
+        progress: raceState.progress || {},
+        finished: Array.isArray(raceState.finished) ? raceState.finished : [],
+      };
+      raceState = next;
+      raceLocalProgress = Number(next.progress[getMember()] || 0);
+      renderRace();
+    };
+    tick();
+    raceCountdownTimer = setInterval(tick, 100);
+  }
+
+  function startRace() {
+    const members = memberList();
+    const progress = {};
+    members.forEach((n) => (progress[n] = 0));
+    raceLocalProgress = 0;
+    const next = {
+      kind: "race",
+      phase: "countdown",
+      goAt: Date.now() + 3000,
+      progress,
+      finished: [],
+      roundId: newRoundId(),
+    };
+    raceState = next;
+    renderRace();
+    sendGame(next);
+  }
+
+  function broadcastRaceProgress(force) {
+    const me = getMember();
+    if (!me || raceState.phase !== "racing") return;
+    const now = Date.now();
+    if (!force && now - raceLastBroadcast < 400) return;
+    raceLastBroadcast = now;
+    const progress = { ...(raceState.progress || {}), [me]: raceLocalProgress };
+    let next = {
+      kind: "race",
+      phase: "racing",
+      progress,
+      finished: Array.isArray(raceState.finished) ? raceState.finished.slice() : [],
+      roundId: raceState.roundId,
+      goAt: raceState.goAt,
+    };
+    if (raceLocalProgress >= 100 && !next.finished.includes(me)) {
+      next.finished.push(me);
+    }
+    next = maybeFinishRace(next);
+    raceState = next;
+    paintRaceProgress();
+    if (next.phase === "done") renderRace();
+    sendGame(next);
+  }
+
+  function tapRace() {
+    if (raceState.phase !== "racing") return;
+    raceLocalProgress = Math.min(100, raceLocalProgress + 3.2);
+    const me = getMember();
+    raceState.progress = { ...(raceState.progress || {}), [me]: raceLocalProgress };
+    paintRaceProgress();
+    broadcastRaceProgress(raceLocalProgress >= 100);
+  }
+
+  function applyGamePayload(payload) {
+    if (!payload || !payload.kind) return;
+    if (payload.kind === "bomb") {
+      if (payload.phase === "playing") {
+        const isNew = payload.roundId !== bombRoundSeen;
+        bombState = payload;
+        renderBomb();
+        if (isNew) {
+          bombRoundSeen = payload.roundId;
+          scheduleBombBoom(payload);
+        }
+      } else if (payload.phase === "boom") {
+        clearBombTimer();
+        bombState = payload;
+        renderBomb();
+      } else if (payload.phase === "idle") {
+        clearBombTimer();
+        bombState = payload;
+        renderBomb();
+      }
+      return;
+    }
+    if (payload.kind === "race") {
+      if (payload.phase === "racing" && raceState.phase === "racing" && payload.roundId === raceState.roundId) {
+        const merged = { ...(raceState.progress || {}) };
+        Object.entries(payload.progress || {}).forEach(([k, v]) => {
+          merged[k] = Math.max(Number(merged[k]) || 0, Number(v) || 0);
+        });
+        const finished = Array.from(
+          new Set([...(raceState.finished || []), ...(payload.finished || [])])
+        );
+        let next = { ...payload, progress: merged, finished };
+        const me = getMember();
+        if (me) next.progress[me] = Math.max(Number(next.progress[me]) || 0, raceLocalProgress);
+        next = maybeFinishRace(next);
+        const wasDone = raceState.phase === "done";
+        raceState = next;
+        if (next.phase === "done" && !wasDone) renderRace();
+        else paintRaceProgress();
+        return;
+      }
+      if (payload.phase === "countdown" || payload.phase === "idle" || payload.phase === "done") {
+        clearRaceTimers();
+        raceState = payload;
+        if (payload.phase === "countdown") {
+          raceLocalProgress = 0;
+        }
+        if (payload.phase === "racing" || payload.phase === "done") {
+          raceLocalProgress = Number((payload.progress || {})[getMember()] || 0);
+        }
+        renderRace();
+        return;
+      }
+      if (payload.phase === "racing") {
+        clearRaceTimers();
+        raceState = payload;
+        raceLocalProgress = Number((payload.progress || {})[getMember()] || 0);
+        renderRace();
+      }
+    }
+  }
+
+  function bindGameSubtabs() {
+    const tabs = document.querySelectorAll(".game-subtab");
+    const panels = document.querySelectorAll(".game-panel");
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const id = tab.getAttribute("data-game-tab");
+        tabs.forEach((t) => {
+          const on = t === tab;
+          t.classList.toggle("is-active", on);
+          t.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        panels.forEach((p) => {
+          const on = p.getAttribute("data-game-panel") === id;
+          p.classList.toggle("is-active", on);
+          p.hidden = !on;
+        });
+      });
+    });
+  }
+
+  function bindGames() {
+    const section = document.getElementById("games");
+    if (!section) return;
+    section.querySelectorAll(".games-hint-personal").forEach((e) => (e.hidden = true));
+    section.querySelectorAll(".games-hint-shared").forEach((e) => (e.hidden = false));
+    const wrap = document.getElementById("games-wrap");
+    if (wrap) wrap.hidden = false;
+
+    bindGameSubtabs();
+    ensureRaceTracks();
+    renderBomb();
+    renderRace();
+    paintGamePresence();
+
+    const gamesEl = document.getElementById("games");
+    if (gamesEl && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            trackGamesPresence(entry.isIntersecting);
+          });
+        },
+        { threshold: 0.18 }
+      );
+      io.observe(gamesEl);
+    } else {
+      trackGamesPresence(true);
+    }
+  }
+
+  function subscribeGames() {
+    gameChannel = supabase.channel(`trip-games:${TRIP}`, {
+      config: { presence: { key: getMember() || `guest-${Math.random().toString(36).slice(2, 7)}` } },
+    });
+    gameChannel
+      .on("presence", { event: "sync" }, () => syncOnlineFromPresence())
+      .on("presence", { event: "join" }, () => syncOnlineFromPresence())
+      .on("presence", { event: "leave" }, () => syncOnlineFromPresence())
+      .on("broadcast", { event: "game" }, ({ payload }) => applyGamePayload(payload))
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await trackGamesPresence(gamesPresenceOn);
+          syncOnlineFromPresence();
+        }
+      });
+  }
+
   function subscribe() {
     supabase
       .channel("trip-live")
@@ -4790,6 +5777,7 @@ window.TRIP_DATA = {
         refreshVotes
       )
       .subscribe();
+    subscribeGames();
   }
 
   async function init() {
@@ -4817,6 +5805,7 @@ window.TRIP_DATA = {
     bindMemberBar();
     bindBoard();
     bindVotes();
+    bindGames();
     await refreshAll();
     subscribe();
     window.__tripRefreshAll = refreshAll;
