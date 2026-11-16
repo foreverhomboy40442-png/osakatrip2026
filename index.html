@@ -5419,23 +5419,27 @@ window.TRIP_DATA = {
     return online.length ? online : all;
   }
 
+  function racePlayersOf(state) {
+    if (state && Array.isArray(state.racers) && state.racers.length) {
+      return state.racers.slice();
+    }
+    return raceOnlinePlayers();
+  }
+
   function maybeFinishRace(state) {
     if (!state || state.phase !== "racing") return state;
-    const players = raceOnlinePlayers();
+    const players = racePlayersOf(state);
     const finished = Array.isArray(state.finished) ? state.finished.slice() : [];
     players.forEach((n) => {
       if ((state.progress[n] || 0) >= 100 && !finished.includes(n)) finished.push(n);
     });
     const everyoneDone = players.every((n) => (state.progress[n] || 0) >= 100);
-    if (!everyoneDone) return { ...state, finished };
-    const order = finished.slice();
-    players.forEach((n) => {
-      if (!order.includes(n)) order.push(n);
-    });
+    if (!everyoneDone) return { ...state, finished, racers: players };
     return {
       ...state,
       phase: "done",
-      finished: order,
+      finished: finished.slice(),
+      racers: players,
       progress: { ...state.progress },
     };
   }
@@ -5479,8 +5483,11 @@ window.TRIP_DATA = {
       startBtn.className = "btn btn-primary";
       startBtn.id = "race-start";
       startBtn.textContent = "發起賽車";
-      startBtn.addEventListener("click", startRace);
       stage.appendChild(startBtn);
+    }
+    if (!startBtn.dataset.bound) {
+      startBtn.addEventListener("click", startRace);
+      startBtn.dataset.bound = "1";
     }
     if (!tapBtn) {
       tapBtn = document.createElement("button");
@@ -5489,8 +5496,11 @@ window.TRIP_DATA = {
       tapBtn.id = "race-tap";
       tapBtn.textContent = "⚡ 狂點加速";
       tapBtn.hidden = true;
-      tapBtn.addEventListener("click", tapRace);
       stage.appendChild(tapBtn);
+    }
+    if (!tapBtn.dataset.bound) {
+      tapBtn.addEventListener("click", tapRace);
+      tapBtn.dataset.bound = "1";
     }
     if (result) result.remove();
 
@@ -5526,10 +5536,11 @@ window.TRIP_DATA = {
     const order = Array.isArray(raceState.finished) ? raceState.finished : [];
     const board = order
       .map((name, i) => {
-        const last = i === order.length - 1;
+        const last = order.length >= 2 && i === order.length - 1;
+        const first = i === 0;
         return `<li class="${last ? "is-last" : ""}"><span>${i + 1}. ${memberAvatar(name)} ${esc(
           name
-        )}</span><span>${last ? "本局買單苦主 💸" : i === 0 ? "🥇" : ""}</span></li>`;
+        )}</span><span>${last ? "本局買單苦主 💸" : first ? "🥇" : ""}</span></li>`;
       })
       .join("");
     const box = document.createElement("div");
@@ -5582,12 +5593,14 @@ window.TRIP_DATA = {
     const progress = {};
     members.forEach((n) => (progress[n] = 0));
     raceLocalProgress = 0;
+    const racers = raceOnlinePlayers();
     const next = {
       kind: "race",
       phase: "countdown",
       goAt: Date.now() + 3000,
       progress,
       finished: [],
+      racers,
       roundId: newRoundId(),
     };
     raceState = next;
@@ -5607,6 +5620,7 @@ window.TRIP_DATA = {
       phase: "racing",
       progress,
       finished: Array.isArray(raceState.finished) ? raceState.finished.slice() : [],
+      racers: racePlayersOf(raceState),
       roundId: raceState.roundId,
       goAt: raceState.goAt,
     };
