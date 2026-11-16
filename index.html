@@ -383,163 +383,226 @@ img {
   margin-top: 0.75rem;
 }
 
-.flight-card {
+/* Boarding-pass style flight tickets */
+.boarding-pass {
+  --bp-paper: #fffdf8;
+  --bp-ink: #2a1d17;
+  --bp-muted: #6d5c51;
+  --bp-line: rgba(42, 29, 23, 0.14);
+  --bp-band: #26486f;
+  position: relative;
   display: grid;
-  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) 14px minmax(7.2rem, 8.5rem);
+  background: var(--bp-paper);
+  color: var(--bp-ink);
+  border: 1px solid var(--bp-line);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 10px 28px rgba(42, 29, 23, 0.1);
+  overflow: hidden;
+  transform: rotate(-0.35deg);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-.flight-top {
+.boarding-pass:nth-child(even) {
+  transform: rotate(0.4deg);
+}
+
+.boarding-pass:hover {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 14px 32px rgba(42, 29, 23, 0.14);
+}
+
+.boarding-pass.is-return {
+  --bp-band: #8a641b;
+}
+
+.bp-main {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0;
+  min-width: 0;
+}
+
+.bp-band {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.9rem;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--bp-band) 92%, #000) 0%, var(--bp-band) 55%, color-mix(in srgb, var(--bp-band) 80%, #fff) 100%);
+  color: #fff;
+}
+
+.bp-airline {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  letter-spacing: 0.04em;
+}
+
+.bp-boarding-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+.bp-body {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.15rem 0.95rem 0.95rem;
+}
+
+.bp-top {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 0.75rem;
 }
 
-.flight-dir {
+.bp-dir {
   font-family: var(--font-display);
-  font-size: 1.05rem;
-  line-height: 1.3;
+  font-size: 1.02rem;
 }
 
-.flight-date {
-  color: var(--ink-soft);
-  font-size: 0.85rem;
+.bp-date {
+  color: var(--bp-muted);
+  font-size: 0.82rem;
   white-space: nowrap;
 }
 
-.flight-chips {
+.bp-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
-.flight-chip {
+.bp-chip {
   background: rgba(224, 69, 44, 0.1);
-  color: var(--accent);
-  border: 1px solid rgba(224, 69, 44, 0.25);
-  border-radius: 999px;
-  padding: 0.1rem 0.6rem;
-  font-size: 0.78rem;
-  font-weight: 600;
+  color: var(--accent-strong);
+  border: 1px solid rgba(224, 69, 44, 0.22);
+  border-radius: 4px;
+  padding: 0.08rem 0.45rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
-.flight-route {
+.bp-route {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 0.6rem;
+  gap: 0.55rem;
   align-items: start;
-  padding: 0.5rem 0;
-  border-top: 1px dashed var(--line, rgba(0, 0, 0, 0.12));
-  border-bottom: 1px dashed var(--line, rgba(0, 0, 0, 0.12));
+  padding: 0.55rem 0;
+  border-top: 1px dashed var(--bp-line);
+  border-bottom: 1px dashed var(--bp-line);
 }
 
-.flight-city {
+.bp-city {
   display: grid;
-  gap: 0.1rem;
+  gap: 0.08rem;
   min-width: 0;
 }
 
-.flight-city strong {
+.bp-city strong {
   font-family: var(--font-display);
-  font-size: 1.45rem;
-  letter-spacing: 0.04em;
+  font-size: 1.55rem;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
 }
 
-.flight-city .flight-time {
+.bp-city .bp-time {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--ink);
 }
 
-.flight-city .flight-place {
-  font-size: 0.9rem;
-  color: var(--ink);
+.bp-city .bp-place {
+  font-size: 0.88rem;
 }
 
-.flight-city .flight-sub {
-  color: var(--ink-soft);
-  font-size: 0.78rem;
+.bp-city .bp-sub,
+.bp-city .bp-tz {
+  color: var(--bp-muted);
+  font-size: 0.74rem;
 }
 
-.flight-city .flight-tz {
-  color: var(--ink-soft);
-  font-size: 0.72rem;
-  letter-spacing: 0.03em;
-}
-
-.flight-city.to {
+.bp-city.to {
   text-align: right;
 }
 
-.flight-arrow {
+.bp-arrow {
   color: var(--accent);
   display: grid;
   justify-items: center;
   gap: 0.1rem;
-  padding-top: 1.2rem;
+  padding-top: 0.85rem;
 }
 
-.flight-arrow span {
-  font-size: 1.1rem;
+.bp-arrow span {
+  font-size: 1.05rem;
 }
 
-.flight-arrow small {
-  font-size: 0.68rem;
-  color: var(--ink-soft);
+.bp-arrow small {
+  font-size: 0.66rem;
+  color: var(--bp-muted);
   white-space: nowrap;
 }
 
-.flight-meta {
+.bp-meta {
   margin: 0;
   display: grid;
-  gap: 0.3rem;
+  gap: 0.28rem;
 }
 
-.flight-meta-row {
+.bp-meta-row {
   display: grid;
   grid-template-columns: 5rem 1fr;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+  gap: 0.45rem;
+  font-size: 0.84rem;
 }
 
-.flight-meta-row dt {
-  color: var(--ink-soft);
+.bp-meta-row dt {
+  color: var(--bp-muted);
 }
 
-.flight-meta-row dd {
+.bp-meta-row dd {
   margin: 0;
-  color: var(--ink);
   font-weight: 600;
 }
 
-.flight-pax {
+.bp-pax {
   display: grid;
   gap: 0.4rem;
 }
 
-.flight-pax-head {
+.bp-pax-head {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
-.flight-seat-badge {
-  font-size: 0.72rem;
+.bp-seat-badge {
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 0.1rem 0.55rem;
-  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
 }
 
-.flight-seat-badge.is-set {
+.bp-seat-badge.is-set {
   background: rgba(34, 139, 87, 0.14);
   color: #1f7a4d;
 }
 
-.flight-seat-badge.is-open {
+.bp-seat-badge.is-open {
   background: rgba(214, 158, 46, 0.16);
   color: #9a6a12;
 }
@@ -547,21 +610,21 @@ img {
 .pax-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
 }
 
 .pax-table th,
 .pax-table td {
   text-align: left;
-  padding: 0.35rem 0.4rem;
-  border-bottom: 1px solid var(--line, rgba(0, 0, 0, 0.08));
+  padding: 0.32rem 0.35rem;
+  border-bottom: 1px solid var(--bp-line);
   vertical-align: top;
 }
 
 .pax-table th {
-  color: var(--ink-soft);
+  color: var(--bp-muted);
   font-weight: 600;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
 }
 
 .pax-table .pax-name {
@@ -571,20 +634,127 @@ img {
 
 .pax-table .pax-seat {
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-strong);
   white-space: nowrap;
 }
 
 .pax-table .pax-bag {
-  color: var(--ink-soft);
+  color: var(--bp-muted);
   white-space: nowrap;
 }
 
-.flight-note {
+.bp-note {
   margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.85rem;
+  color: var(--bp-muted);
+  font-size: 0.82rem;
   line-height: 1.5;
+}
+
+.bp-tear {
+  position: relative;
+  background:
+    radial-gradient(circle at center, transparent 3.5px, var(--bp-paper) 3.6px) 0 0 / 100% 12px,
+    linear-gradient(to bottom, transparent 0, transparent calc(50% - 0.5px), var(--bp-line) calc(50% - 0.5px), var(--bp-line) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+  background-repeat: repeat-y, no-repeat;
+  background-position: center, center;
+  border-left: 1px dashed color-mix(in srgb, var(--bp-muted) 45%, transparent);
+  border-right: 1px dashed color-mix(in srgb, var(--bp-muted) 45%, transparent);
+}
+
+.bp-tear::before,
+.bp-tear::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  transform: translateX(-50%);
+  box-shadow: inset 0 0 0 1px var(--bp-line);
+}
+
+.bp-tear::before {
+  top: -9px;
+}
+
+.bp-tear::after {
+  bottom: -9px;
+}
+
+.bp-stub {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.55rem;
+  padding: 0.7rem 0.55rem 0.75rem;
+  background:
+    repeating-linear-gradient(
+      -18deg,
+      transparent,
+      transparent 10px,
+      rgba(38, 72, 111, 0.035) 10px,
+      rgba(38, 72, 111, 0.035) 11px
+    ),
+    linear-gradient(180deg, #fff9ef, #fffdf8);
+  text-align: center;
+  writing-mode: horizontal-tb;
+}
+
+.bp-stub-kicker {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+.bp-stub-flight {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+}
+
+.bp-stub-meta {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--bp-muted);
+}
+
+.bp-stub-meta strong {
+  display: block;
+  color: var(--bp-ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.bp-barcode {
+  height: 42px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    #2a1d17 0 1.5px,
+    transparent 1.5px 3px,
+    #2a1d17 3px 4px,
+    transparent 4px 7px,
+    #2a1d17 7px 10px,
+    transparent 10px 12px,
+    #2a1d17 12px 13px,
+    transparent 13px 16px,
+    #2a1d17 16px 19px,
+    transparent 19px 21px
+  );
+  opacity: 0.88;
+}
+
+.bp-stub-code {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--bp-muted);
+  word-break: break-all;
 }
 
 .hotel-card h3 {
@@ -885,6 +1055,87 @@ img {
   margin: 0.3rem 0 0;
   color: var(--ink-soft);
   font-size: 0.94rem;
+}
+
+/* Polaroid / scrapbook frames for attraction & dining slots */
+.timeline-body.is-polaroid,
+.timeline-body.is-sticker {
+  padding: 0.85rem 0.9rem 1.05rem;
+  margin-left: 0.15rem;
+  background: #fffef9;
+  border: 1px solid rgba(42, 29, 23, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85) inset,
+    0 8px 18px rgba(42, 29, 23, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-body.is-polaroid {
+  border-radius: 3px 3px 10px 10px;
+  padding-bottom: 1.25rem;
+  transform: rotate(-1.15deg);
+}
+
+.timeline-body.is-polaroid::after {
+  content: "";
+  position: absolute;
+  top: -0.35rem;
+  left: 18%;
+  width: 38%;
+  height: 0.55rem;
+  background: linear-gradient(
+    90deg,
+    rgba(224, 69, 44, 0.28),
+    rgba(224, 122, 44, 0.22),
+    rgba(224, 69, 44, 0.26)
+  );
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(42, 29, 23, 0.12);
+  transform: rotate(-2deg);
+  pointer-events: none;
+}
+
+.timeline-item:nth-child(even) .timeline-body.is-polaroid {
+  transform: rotate(1.05deg);
+}
+
+.timeline-item:nth-child(3n) .timeline-body.is-polaroid {
+  transform: rotate(-0.55deg);
+}
+
+.timeline-body.is-sticker {
+  border-radius: 18px 12px 16px 14px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(207, 155, 63, 0.14), transparent 42%),
+    #fffdf6;
+  border: 1.5px dashed rgba(138, 100, 27, 0.35);
+  transform: rotate(0.9deg);
+}
+
+.timeline-item:nth-child(odd) .timeline-body.is-sticker {
+  transform: rotate(-0.8deg);
+}
+
+.timeline-body.is-polaroid:hover,
+.timeline-body.is-sticker:hover {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 12px 24px rgba(42, 29, 23, 0.14);
+  z-index: 2;
+}
+
+.timeline-body.is-polaroid::before,
+.timeline-body.is-sticker::before {
+  left: -0.55rem;
+  top: 0.7rem;
+  z-index: 2;
+}
+
+.timeline-body.is-polaroid h4,
+.timeline-body.is-sticker h4 {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
 }
 
 .type-tag {
@@ -1780,8 +2031,67 @@ img {
     left: 5.2rem;
   }
 
-  .flight-city strong {
+  .bp-city strong {
     font-size: 1.3rem;
+  }
+
+  .boarding-pass {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 14px auto;
+    transform: none;
+  }
+
+  .boarding-pass:nth-child(even),
+  .boarding-pass:hover {
+    transform: none;
+  }
+
+  .bp-tear {
+    background:
+      radial-gradient(circle at center, transparent 3.5px, var(--bp-paper) 3.6px) center / 12px 100%,
+      linear-gradient(to right, transparent 0, transparent calc(50% - 0.5px), var(--bp-line) calc(50% - 0.5px), var(--bp-line) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    background-repeat: repeat-x, no-repeat;
+    border-left: 0;
+    border-right: 0;
+    border-top: 1px dashed color-mix(in srgb, var(--bp-muted) 45%, transparent);
+    border-bottom: 1px dashed color-mix(in srgb, var(--bp-muted) 45%, transparent);
+  }
+
+  .bp-tear::before,
+  .bp-tear::after {
+    top: 50%;
+    bottom: auto;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+  }
+
+  .bp-tear::before {
+    left: -9px;
+  }
+
+  .bp-tear::after {
+    left: auto;
+    right: -9px;
+  }
+
+  .bp-stub {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    text-align: left;
+    align-items: center;
+    gap: 0.55rem 0.85rem;
+  }
+
+  .bp-stub > :last-child {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    width: 5.5rem;
+  }
+
+  .timeline-body.is-polaroid,
+  .timeline-body.is-sticker {
+    margin-left: 0;
   }
 }
 
@@ -1859,7 +2169,7 @@ img {
         <section class="section" id="flights">
           <div class="section-head">
             <h2>航班資訊</h2>
-            <p>去程與回程時刻，方便對齊機場交通</p>
+            <p>登機證造型整理去回程時刻，方便對齊機場交通</p>
           </div>
           <div class="stack" id="flights-root"></div>
         </section>
@@ -2670,7 +2980,7 @@ window.TRIP_DATA = {
   function flightCard(f) {
     const chips = [f.flightNo, f.cabin, f.aircraft]
       .filter(Boolean)
-      .map((c) => `<span class="flight-chip">${escapeHtml(c)}</span>`)
+      .map((c) => `<span class="bp-chip">${escapeHtml(c)}</span>`)
       .join("");
     const metaRows = [];
     metaRows.push(
@@ -2681,8 +2991,8 @@ window.TRIP_DATA = {
     const metaHtml = metaRows.join("");
 
     const seatNote = f.seatsAssigned
-      ? '<span class="flight-seat-badge is-set">已指定座位</span>'
-      : '<span class="flight-seat-badge is-open">尚未指定座位・需網上選位</span>';
+      ? '<span class="bp-seat-badge is-set">已指定座位</span>'
+      : '<span class="bp-seat-badge is-open">尚未指定座位・需網上選位</span>';
 
     const paxRows = (f.passengers || [])
       .map(
@@ -2697,57 +3007,90 @@ window.TRIP_DATA = {
       )
       .join("");
 
+    const firstSeat =
+      ((f.passengers || []).find((p) => p.seat && p.seat !== "現場選位") || {})
+        .seat || (f.seatsAssigned ? "—" : "TBA");
+    const isReturn = f.id === "return" || f.direction === "回程";
+
     return `
-      <article class="card flight-card">
-        <div class="flight-top">
-          <span class="flight-dir">${escapeHtml(f.direction)}・${escapeHtml(f.airline)}</span>
-          <span class="flight-date">${escapeHtml(formatDisplayDate(f.date))}（${escapeHtml(
-      f.weekday
-    )}）</span>
+      <article class="boarding-pass${isReturn ? " is-return" : ""}">
+        <div class="bp-main">
+          <div class="bp-band">
+            <span class="bp-airline">${escapeHtml(f.airline)}</span>
+            <span class="bp-boarding-label">Boarding Pass</span>
+          </div>
+          <div class="bp-body">
+            <div class="bp-top">
+              <span class="bp-dir">${escapeHtml(f.direction)}</span>
+              <span class="bp-date">${escapeHtml(formatDisplayDate(f.date))}（${escapeHtml(
+                f.weekday
+              )}）</span>
+            </div>
+            <div class="bp-chips">${chips}</div>
+            <div class="bp-route">
+              <div class="bp-city">
+                <strong>${escapeHtml(f.fromCode)}</strong>
+                <span class="bp-time">${escapeHtml(f.dep)}</span>
+                <span class="bp-place">${escapeHtml(f.fromName)}</span>
+                <span class="bp-sub">${escapeHtml(f.fromAirport)}・${escapeHtml(
+                  f.fromTerminal
+                )}</span>
+                <span class="bp-tz">${escapeHtml(f.fromTz)}</span>
+              </div>
+              <div class="bp-arrow" aria-hidden="true">
+                <span>✈</span>
+                <small>${escapeHtml(f.duration)}</small>
+              </div>
+              <div class="bp-city to">
+                <strong>${escapeHtml(f.toCode)}</strong>
+                <span class="bp-time">${escapeHtml(f.arr)}</span>
+                <span class="bp-place">${escapeHtml(f.toName)}</span>
+                <span class="bp-sub">${escapeHtml(f.toAirport)}・${escapeHtml(
+                  f.toTerminal
+                )}</span>
+                <span class="bp-tz">${escapeHtml(f.toTz)}</span>
+              </div>
+            </div>
+            <dl class="bp-meta">${metaHtml}</dl>
+            <div class="bp-pax">
+              <div class="bp-pax-head">
+                <span>乘客與座位</span>
+                ${seatNote}
+              </div>
+              <table class="pax-table">
+                <thead><tr><th>乘客</th><th>座位</th><th>行李（託運／隨身）</th></tr></thead>
+                <tbody>${paxRows}</tbody>
+              </table>
+            </div>
+            <p class="bp-note">${escapeHtml(f.note)}</p>
+          </div>
         </div>
-        <div class="flight-chips">${chips}</div>
-        <div class="flight-route">
-          <div class="flight-city">
-            <strong>${escapeHtml(f.fromCode)}</strong>
-            <span class="flight-time">${escapeHtml(f.dep)}</span>
-            <span class="flight-place">${escapeHtml(f.fromName)}</span>
-            <span class="flight-sub">${escapeHtml(f.fromAirport)}・${escapeHtml(
-      f.fromTerminal
-    )}</span>
-            <span class="flight-tz">${escapeHtml(f.fromTz)}</span>
+        <div class="bp-tear" aria-hidden="true"></div>
+        <aside class="bp-stub">
+          <div>
+            <div class="bp-stub-kicker">Flight</div>
+            <div class="bp-stub-flight">${escapeHtml(f.flightNo)}</div>
           </div>
-          <div class="flight-arrow" aria-hidden="true">
-            <span>✈</span>
-            <small>${escapeHtml(f.duration)}</small>
+          <div class="bp-stub-meta">
+            <div><span>Date</span><strong>${escapeHtml(
+              formatDisplayDate(f.date)
+            )}</strong></div>
+            <div><span>Seat</span><strong>${escapeHtml(firstSeat)}</strong></div>
+            <div><span>${escapeHtml(f.fromCode)}</span> → <span>${escapeHtml(
+              f.toCode
+            )}</span></div>
           </div>
-          <div class="flight-city to">
-            <strong>${escapeHtml(f.toCode)}</strong>
-            <span class="flight-time">${escapeHtml(f.arr)}</span>
-            <span class="flight-place">${escapeHtml(f.toName)}</span>
-            <span class="flight-sub">${escapeHtml(f.toAirport)}・${escapeHtml(
-      f.toTerminal
-    )}</span>
-            <span class="flight-tz">${escapeHtml(f.toTz)}</span>
+          <div>
+            <div class="bp-barcode" aria-hidden="true"></div>
+            <div class="bp-stub-code">${escapeHtml(f.bookingRef || "BOARDING")}</div>
           </div>
-        </div>
-        <dl class="flight-meta">${metaHtml}</dl>
-        <div class="flight-pax">
-          <div class="flight-pax-head">
-            <span>乘客與座位</span>
-            ${seatNote}
-          </div>
-          <table class="pax-table">
-            <thead><tr><th>乘客</th><th>座位</th><th>行李（託運／隨身）</th></tr></thead>
-            <tbody>${paxRows}</tbody>
-          </table>
-        </div>
-        <p class="flight-note">${escapeHtml(f.note)}</p>
+        </aside>
       </article>
     `;
   }
 
   function flightMeta(k, v) {
-    return `<div class="flight-meta-row"><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(
+    return `<div class="bp-meta-row"><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(
       v
     )}</dd></div>`;
   }
@@ -3012,11 +3355,17 @@ window.TRIP_DATA = {
           ${bookingBlock}
           <ol class="timeline">
             ${d.slots
-              .map(
-                (s) => `
+              .map((s) => {
+                const frameClass =
+                  s.type === "景點"
+                    ? " is-polaroid"
+                    : s.type === "用餐"
+                      ? " is-sticker"
+                      : "";
+                return `
               <li class="timeline-item">
                 <div class="timeline-time">${escapeHtml(s.time)}</div>
-                <div class="timeline-body">
+                <div class="timeline-body${frameClass}" data-type="${escapeHtml(s.type)}">
                   <span class="type-tag" data-type="${escapeHtml(s.type)}">${escapeHtml(
                     s.type
                   )}</span>
@@ -3025,8 +3374,8 @@ window.TRIP_DATA = {
                   ${slotActions(s)}
                 </div>
               </li>
-            `
-              )
+            `;
+              })
               .join("")}
           </ol>
           ${freeBlock}
