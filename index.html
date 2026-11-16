@@ -1084,7 +1084,7 @@ img {
   font-size: 0.94rem;
 }
 
-/* Polaroid / scrapbook frames for attraction & dining slots */
+/* Polaroid / scrapbook frames for attraction & dining slots (kept upright) */
 .timeline-body.is-polaroid,
 .timeline-body.is-sticker {
   padding: 0.85rem 0.9rem 1.05rem;
@@ -1094,13 +1094,13 @@ img {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.85) inset,
     0 8px 18px rgba(42, 29, 23, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: none;
+  transition: box-shadow 0.3s ease, translate 0.3s ease;
 }
 
 .timeline-body.is-polaroid {
   border-radius: 3px 3px 10px 10px;
   padding-bottom: 1.25rem;
-  transform: rotate(-1.15deg);
 }
 
 .timeline-body.is-polaroid::after {
@@ -1118,16 +1118,7 @@ img {
   );
   border-radius: 2px;
   box-shadow: 0 1px 2px rgba(42, 29, 23, 0.12);
-  transform: rotate(-2deg);
   pointer-events: none;
-}
-
-.timeline-item:nth-child(even) .timeline-body.is-polaroid {
-  transform: rotate(1.05deg);
-}
-
-.timeline-item:nth-child(3n) .timeline-body.is-polaroid {
-  transform: rotate(-0.55deg);
 }
 
 .timeline-body.is-sticker {
@@ -1136,16 +1127,11 @@ img {
     radial-gradient(circle at 12% 18%, rgba(207, 155, 63, 0.14), transparent 42%),
     #fffdf6;
   border: 1.5px dashed rgba(138, 100, 27, 0.35);
-  transform: rotate(0.9deg);
-}
-
-.timeline-item:nth-child(odd) .timeline-body.is-sticker {
-  transform: rotate(-0.8deg);
 }
 
 .timeline-body.is-polaroid:hover,
 .timeline-body.is-sticker:hover {
-  transform: rotate(0deg) translateY(-2px);
+  translate: 0 -2px;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.9) inset,
     0 12px 24px rgba(42, 29, 23, 0.14);
