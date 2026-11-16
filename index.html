@@ -3042,7 +3042,7 @@ img {
                 <ul class="game-rules">
                   <li><strong>🧨 限時傳炸彈：</strong>炸彈會隨機爆炸！拿到炸彈快點別人頭像「甩鍋」，爆炸瞬間在誰手上誰受罰。</li>
                   <li><strong>🏎️ 動物狂點賽車：</strong>倒數 3、2、1 後瘋狂連點「⚡ 加速」，跑最後一名就是買單苦主！</li>
-                  <li><strong>🪜 小朋友下樓梯：</strong>點左／右移動，踩樓梯往下衝！掉下去或踩到刺就結束。可選「單人」練功，或「連線」比誰樓層最高。</li>
+                  <li><strong>🪜 小朋友下樓梯：</strong>踩到樓梯會站穩，要左右走到邊緣才下樓；上方天花板會一直往下擠，待太久會被擠掉。可選「單人」或「連線」比樓層。</li>
                 </ul>
               </article>
             </div>
@@ -4799,6 +4799,19 @@ window.TRIP_DATA = {
         }
       });
 
+      // 上方擠壓天花板（尖刺）
+      ctx.fillStyle = "#3a2a24";
+      ctx.fillRect(0, 0, W, 18);
+      ctx.fillStyle = "#c94b3a";
+      for (let x = 6; x < W; x += 14) {
+        ctx.beginPath();
+        ctx.moveTo(x - 6, 18);
+        ctx.lineTo(x, 32);
+        ctx.lineTo(x + 6, 18);
+        ctx.closePath();
+        ctx.fill();
+      }
+
       const py = world.py - world.cam;
       const me =
         (stairsApi.online && stairsApi.online.member && stairsApi.online.member()) ||
@@ -4811,7 +4824,7 @@ window.TRIP_DATA = {
       if (world.dead) {
         ctx.fillStyle = "rgba(224,69,44,0.9)";
         ctx.font = "bold 20px sans-serif";
-        ctx.fillText("掉下去了！", W / 2, H / 2);
+        ctx.fillText(world.deathMsg || "掉下去了！", W / 2, H / 2);
       }
     }
 
@@ -4903,9 +4916,20 @@ window.TRIP_DATA = {
       }
       world.platforms = world.platforms.filter((p) => p.y > world.cam - 60);
 
-      // camera follows player downward
-      const targetCam = world.py - H * 0.38;
-      if (targetCam > world.cam) world.cam += (targetCam - world.cam) * 0.14;
+      // 持續往下擠的鏡頭壓力：待太久會被頂部尖刺擠掉，迫使左右移動下樓
+      const pressure =
+        0.42 + Math.min(1.35, (world.maxFloor || 0) * 0.035);
+      world.cam += pressure;
+      const followCam = world.py - H * 0.4;
+      if (followCam > world.cam) {
+        world.cam += (followCam - world.cam) * 0.16;
+      }
+
+      // 背脊貼到最上層尖刺 → 出局
+      if (world.py - world.cam < 40) {
+        die("被天花板擠掉了");
+        return;
+      }
 
       if (world.py - world.cam > H + 40) {
         die("掉出畫面");
@@ -5015,9 +5039,10 @@ window.TRIP_DATA = {
       }
     }
 
-    function die() {
+    function die(msg) {
       if (!world || world.dead) return;
       world.dead = true;
+      world.deathMsg = msg || "掉下去了！";
       stairsApi.phase = "dead";
       cancelAnimationFrame(raf);
       draw();
@@ -5057,7 +5082,7 @@ window.TRIP_DATA = {
       if (resultEl) resultEl.hidden = true;
       if (statusEl) {
         statusEl.hidden = false;
-        statusEl.textContent = "踩到樓梯會站穩，左右走到邊緣再下樓";
+        statusEl.textContent = "踩到會站穩；上方會往下擠，快左右走到下一階！";
       }
       startBtn.hidden = true;
       draw();
