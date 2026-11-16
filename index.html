@@ -2771,28 +2771,65 @@ img {
   }
 }
 
+.stairs-mode-wrap {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.stairs-mode-label {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
 .stairs-mode {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .stairs-mode-btn {
   flex: 1;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   background: #fff;
   color: var(--ink);
-  border-radius: 999px;
-  padding: 0.45rem 0.7rem;
-  font-size: 0.88rem;
+  border-radius: 14px;
+  padding: 0.7rem 0.75rem;
+  font-size: 0.95rem;
   font-family: inherit;
   cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.stairs-mode-btn strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.stairs-mode-btn small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  font-weight: 500;
 }
 
 .stairs-mode-btn.is-active {
   border-color: var(--accent);
   background: linear-gradient(180deg, #fff 0%, #fff2ec 100%);
   color: var(--accent-strong);
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(224, 69, 44, 0.12);
+}
+
+.stairs-mode-btn.is-active small {
+  color: var(--accent-strong);
+}
+
+.stairs-mode-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .stairs-stage {
@@ -3031,9 +3068,18 @@ img {
             </div>
 
             <div class="game-panel" data-game-panel="stairs" role="tabpanel" hidden>
-              <div class="stairs-mode" role="tablist" aria-label="下樓梯模式">
-                <button type="button" class="stairs-mode-btn is-active" data-stairs-mode="solo" aria-selected="true">單人</button>
-                <button type="button" class="stairs-mode-btn" data-stairs-mode="online" aria-selected="false">連線</button>
+              <div class="stairs-mode-wrap">
+                <p class="stairs-mode-label">先選模式再開始</p>
+                <div class="stairs-mode" role="tablist" aria-label="下樓梯模式">
+                  <button type="button" class="stairs-mode-btn is-active" data-stairs-mode="solo" aria-selected="true">
+                    <strong>單人</strong>
+                    <small>自己練，不用連線</small>
+                  </button>
+                  <button type="button" class="stairs-mode-btn" data-stairs-mode="online" aria-selected="false">
+                    <strong>連線</strong>
+                    <small>四人比誰樓層高</small>
+                  </button>
+                </div>
               </div>
               <div class="game-presence" data-presence-for="stairs"></div>
               <p class="game-tip" id="stairs-tip">👉 單人模式：自己練下樓，挑戰最高樓層。</p>
@@ -3047,8 +3093,8 @@ img {
                   <button type="button" class="btn btn-ghost stairs-dir" id="stairs-left" aria-label="向左">◀ 左</button>
                   <button type="button" class="btn btn-ghost stairs-dir" id="stairs-right" aria-label="向右">右 ▶</button>
                 </div>
-                <p class="game-idle-copy" id="stairs-status">選模式後按開始下樓</p>
-                <button type="button" class="btn btn-primary" id="stairs-start">開始下樓</button>
+                <p class="game-idle-copy" id="stairs-status">先點上方「單人」或「連線」，再按開始</p>
+                <button type="button" class="btn btn-primary" id="stairs-start">單人開始下樓</button>
                 <div class="game-result" id="stairs-result" hidden></div>
               </div>
             </div>
@@ -4609,39 +4655,77 @@ window.TRIP_DATA = {
     let holdRight = false;
     let world = null;
 
+    function onlineReady() {
+      return !!(stairsApi.online && stairsApi.online.ready && stairsApi.online.ready());
+    }
+
     function setTip() {
       if (!tipEl) return;
       if (stairsApi.mode === "solo") {
-        tipEl.textContent = "👉 單人模式：自己練下樓，挑戰最高樓層。";
-      } else if (stairsApi.online && stairsApi.online.ready()) {
-        tipEl.textContent = "👉 連線模式：任一人按開始，大家一起比誰樓層最高。";
+        tipEl.textContent = "👉 已選「單人」：自己練下樓，挑戰最高樓層。";
+      } else if (onlineReady()) {
+        tipEl.textContent = "👉 已選「連線」：任一人按開始，大家一起比誰樓層最高。";
       } else {
-        tipEl.textContent = "👉 連線模式需用共享連結並選好身分。";
+        tipEl.textContent =
+          "👉 已選「連線」，但還沒共享連線：請用含 #s= 的共享連結開啟並選好身分。";
+      }
+    }
+
+    function updateStartButton() {
+      startBtn.hidden = false;
+      startBtn.disabled = false;
+      if (stairsApi.mode === "online") {
+        if (!onlineReady()) {
+          startBtn.textContent = "連線需先開共享連結";
+          startBtn.disabled = true;
+        } else {
+          startBtn.textContent = "連線開始下樓";
+        }
+      } else {
+        startBtn.textContent = "單人開始下樓";
       }
     }
 
     function setMode(mode) {
-      stairsApi.mode = mode === "online" ? "online" : "solo";
+      const next = mode === "online" ? "online" : "solo";
+      // 允許隨時切換；進行中則中止本局
+      if (stairsApi.phase === "playing" || stairsApi.phase === "dead") {
+        cancelAnimationFrame(raf);
+        stairsApi.phase = "idle";
+        if (world) {
+          world.dead = true;
+        }
+      }
+      if (stairsApi.phase === "done") stairsApi.phase = "idle";
+      stairsApi.mode = next;
       document.querySelectorAll("[data-stairs-mode]").forEach((btn) => {
         const on = btn.getAttribute("data-stairs-mode") === stairsApi.mode;
         btn.classList.toggle("is-active", on);
         btn.setAttribute("aria-selected", on ? "true" : "false");
       });
       setTip();
-      if (stairsApi.phase !== "playing") {
-        if (statusEl) {
-          statusEl.hidden = false;
-          statusEl.textContent =
-            stairsApi.mode === "online" ? "連線就緒後按開始下樓" : "選模式後按開始下樓";
+      if (resultEl) resultEl.hidden = true;
+      if (statusEl) {
+        statusEl.hidden = false;
+        if (stairsApi.mode === "online") {
+          statusEl.textContent = onlineReady()
+            ? "連線模式已選好，按下方開始"
+            : "連線模式已選好，請先打開共享連結";
+        } else {
+          statusEl.textContent = "單人模式已選好，按下方開始";
         }
-        if (resultEl) resultEl.hidden = true;
-        startBtn.hidden = false;
-        startBtn.textContent = "開始下樓";
       }
+      updateStartButton();
+      resetWorld();
+      draw();
     }
 
     document.querySelectorAll("[data-stairs-mode]").forEach((btn) => {
-      btn.addEventListener("click", () => setMode(btn.getAttribute("data-stairs-mode")));
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setMode(btn.getAttribute("data-stairs-mode"));
+      });
     });
 
     function avatarFor(name) {
@@ -4658,10 +4742,10 @@ window.TRIP_DATA = {
 
     function resetWorld() {
       const platforms = [];
-      let y = 110;
+      let y = 120;
       for (let i = 0; i < 12; i++) {
         platforms.push(newPlatform(y, i));
-        y += 50 + Math.floor(Math.random() * 16);
+        y += 62 + Math.floor(Math.random() * 14);
       }
       const first = platforms[0];
       world = {
@@ -4743,13 +4827,13 @@ window.TRIP_DATA = {
     function step() {
       if (!world || world.dead) return;
       world.tick++;
-      const speed = holdLeft || moveDir < 0 ? -3.2 : holdRight || moveDir > 0 ? 3.2 : 0;
+      const speed = holdLeft || moveDir < 0 ? -2.05 : holdRight || moveDir > 0 ? 2.05 : 0;
       world.px += speed;
       if (world.px < 10) world.px = 10;
       if (world.px > W - 10) world.px = W - 10;
 
-      world.pvy += 0.35;
-      if (world.pvy > 10) world.pvy = 10;
+      world.pvy += 0.15;
+      if (world.pvy > 4.6) world.pvy = 4.6;
       world.py += world.pvy;
       world.onGround = false;
 
@@ -4768,9 +4852,9 @@ window.TRIP_DATA = {
             die("踩到刺了");
             return;
           }
-          // 踩到後短暫站穩再往下掉（經典下樓梯手感）
+          // 踩到後短暫站穩再往下掉（經典下樓梯手感，速度放慢）
           world.py = p.y - 10;
-          world.pvy = 2.4;
+          world.pvy = 0.85;
           world.onGround = true;
           p.used = true;
           if (p.floor > world.maxFloor) {
@@ -4792,8 +4876,8 @@ window.TRIP_DATA = {
         const nextFloor = Math.max(...world.platforms.map((p) => p.floor)) + 1;
         const ny =
           Math.max(...world.platforms.map((p) => p.y)) +
-          50 +
-          Math.floor(Math.random() * 16);
+          62 +
+          Math.floor(Math.random() * 14);
         world.platforms.push(newPlatform(ny, nextFloor));
       }
       world.platforms = world.platforms.filter((p) => p.y > world.cam - 60);
@@ -4984,8 +5068,20 @@ window.TRIP_DATA = {
     }
 
     startBtn.addEventListener("click", () => {
-      if (stairsApi.mode === "online") requestOnlineStart();
-      else startLocal();
+      if (stairsApi.mode === "online") {
+        if (!onlineReady()) {
+          setTip();
+          if (statusEl) {
+            statusEl.hidden = false;
+            statusEl.textContent = "尚未共享連線，請改點「單人」或打開共享連結";
+          }
+          updateStartButton();
+          return;
+        }
+        requestOnlineStart();
+      } else {
+        startLocal();
+      }
     });
 
     function setHold(dir, on) {
@@ -5052,7 +5148,13 @@ window.TRIP_DATA = {
         if (!payload || payload.kind !== "stairs") return;
         if (payload.phase === "start") {
           stairsApi.mode = "online";
-          setMode("online");
+          document.querySelectorAll("[data-stairs-mode]").forEach((btn) => {
+            const on = btn.getAttribute("data-stairs-mode") === "online";
+            btn.classList.toggle("is-active", on);
+            btn.setAttribute("aria-selected", on ? "true" : "false");
+          });
+          setTip();
+          updateStartButton();
           stairsApi.scores = payload.scores || {};
           startLocal(payload.roundId);
           return;
@@ -5073,6 +5175,7 @@ window.TRIP_DATA = {
       setOnline(api) {
         stairsApi.online = api;
         setTip();
+        updateStartButton();
       },
       refreshTip: setTip,
     };
