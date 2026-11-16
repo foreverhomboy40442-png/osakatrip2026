@@ -5259,7 +5259,9 @@ window.TRIP_DATA = {
   let raceLastBroadcast = 0;
   let raceCountdownTimer = null;
   let raceAnimTimer = null;
+  let raceFinishTimer = null;
   let gamesPresenceOn = false;
+  const RACE_FINISH_WINDOW_MS = 6000;
 
   function newRoundId() {
     return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -5440,6 +5442,10 @@ window.TRIP_DATA = {
       clearInterval(raceAnimTimer);
       raceAnimTimer = null;
     }
+    if (raceFinishTimer) {
+      clearTimeout(raceFinishTimer);
+      raceFinishTimer = null;
+    }
   }
 
   function ensureRaceTracks() {
@@ -5486,8 +5492,11 @@ window.TRIP_DATA = {
 
   function raceOnlinePlayers() {
     const all = memberList();
-    const online = all.filter((n) => onlineMembers.has(n));
-    return online.length ? online : all;
+    const me = getMember();
+    const set = new Set(all.filter((n) => onlineMembers.has(n)));
+    if (me) set.add(me);
+    if (set.size) return all.filter((n) => set.has(n));
+    return me ? [me] : all.slice(0, 1);
   }
 
   function racePlayersOf(state) {
@@ -5497,21 +5506,83 @@ window.TRIP_DATA = {
     return raceOnlinePlayers();
   }
 
+  function finalizeRaceOrder(state) {
+    const players = racePlayersOf(state);
+    const progress = state.progress || {};
+    const finished = Array.isArray(state.finished) ? state.finished.slice() : [];
+    players.forEach((n) => {
+      if ((progress[n] || 0) >= 100 && !finished.includes(n)) finished.push(n);
+    });
+    const rest = players
+      .filter((n) => !finished.includes(n))
+      .sort((a, b) => (Number(progress[b]) || 0) - (Number(progress[a]) || 0));
+    return finished.concat(rest);
+  }
+
+  function scheduleRaceFinishCheck(state) {
+    if (raceFinishTimer) {
+      clearTimeout(raceFinishTimer);
+      raceFinishTimer = null;
+    }
+    if (!state || state.phase !== "racing" || !state.firstFinishAt) return;
+    const wait = Math.max(50, RACE_FINISH_WINDOW_MS - (Date.now() - state.firstFinishAt) + 30);
+    raceFinishTimer = setTimeout(() => {
+      if (raceState.phase !== "racing" || raceState.roundId !== state.roundId) return;
+      const next = maybeFinishRace({ ...raceState, forceFinish: true });
+      if (next.phase === "done") {
+        raceState = next;
+        renderRace();
+        sendGame(next);
+      }
+    }, wait);
+  }
+
   function maybeFinishRace(state) {
     if (!state || state.phase !== "racing") return state;
     const players = racePlayersOf(state);
+    const progress = { ...(state.progress || {}) };
     const finished = Array.isArray(state.finished) ? state.finished.slice() : [];
     players.forEach((n) => {
-      if ((state.progress[n] || 0) >= 100 && !finished.includes(n)) finished.push(n);
+      if ((progress[n] || 0) >= 100 && !finished.includes(n)) finished.push(n);
     });
-    const everyoneDone = players.every((n) => (state.progress[n] || 0) >= 100);
-    if (!everyoneDone) return { ...state, finished, racers: players };
+
+    let firstFinishAt = state.firstFinishAt || null;
+    if (finished.length && !firstFinishAt) firstFinishAt = Date.now();
+
+    // 有實際開跑的人（進度 > 0）；略過只亮燈但沒點的幽靈在線
+    const started = players.filter((n) => (progress[n] || 0) > 0);
+    const onlineRacers = players.filter((n) => onlineMembers.has(n));
+    let required;
+    if (started.length <= 1 || onlineRacers.length <= 1) {
+      // 單人測試／只有一人在跑：衝線立刻結算
+      required = started.length ? started : raceOnlinePlayers().slice(0, 1);
+    } else {
+      // 多人：等有開跑的人都到，並用時間窗兜底
+      required = started;
+    }
+
+    const allRequiredDone =
+      required.length > 0 && required.every((n) => (progress[n] || 0) >= 100);
+    const windowExpired =
+      !!state.forceFinish ||
+      (firstFinishAt && Date.now() - firstFinishAt >= RACE_FINISH_WINDOW_MS);
+
+    if (!allRequiredDone && !windowExpired) {
+      return { ...state, finished, racers: players, firstFinishAt, progress };
+    }
+
     return {
       ...state,
       phase: "done",
-      finished: finished.slice(),
+      finished: finalizeRaceOrder({
+        ...state,
+        finished,
+        progress,
+        racers: players,
+      }),
       racers: players,
-      progress: { ...state.progress },
+      progress,
+      firstFinishAt,
     };
   }
 
@@ -5593,10 +5664,20 @@ window.TRIP_DATA = {
     }
 
     if (raceState.phase === "racing") {
+      const me = getMember();
+      const myPct = Math.max(
+        Number((raceState.progress || {})[me] || 0),
+        raceLocalProgress || 0
+      );
       status.hidden = false;
-      status.textContent = "GO！狂點加速！";
       startBtn.hidden = true;
-      tapBtn.hidden = false;
+      if (myPct >= 100) {
+        status.textContent = "已衝線！等結算…";
+        tapBtn.hidden = true;
+      } else {
+        status.textContent = "GO！狂點加速！";
+        tapBtn.hidden = false;
+      }
       return;
     }
 
@@ -5711,12 +5792,24 @@ window.TRIP_DATA = {
     next = maybeFinishRace(next);
     raceState = next;
     paintRaceProgress();
-    if (next.phase === "done") renderRace();
+    if (next.phase === "done") {
+      renderRace();
+    } else {
+      if (next.firstFinishAt) scheduleRaceFinishCheck(next);
+      const status = document.getElementById("race-status");
+      const tapBtn = document.getElementById("race-tap");
+      const me = getMember();
+      if (status && me && Number(next.progress[me] || 0) >= 100) {
+        status.textContent = "已衝線！等結算…";
+        if (tapBtn) tapBtn.hidden = true;
+      }
+    }
     sendGame(next);
   }
 
   function tapRace() {
     if (raceState.phase !== "racing") return;
+    if (raceLocalProgress >= 100) return;
     raceLocalProgress = Math.min(100, raceLocalProgress + 3.2);
     const me = getMember();
     raceState.progress = { ...(raceState.progress || {}), [me]: raceLocalProgress };
@@ -5755,14 +5848,25 @@ window.TRIP_DATA = {
         const finished = Array.from(
           new Set([...(raceState.finished || []), ...(payload.finished || [])])
         );
-        let next = { ...payload, progress: merged, finished };
+        const firstFinishAt =
+          raceState.firstFinishAt || payload.firstFinishAt || null;
+        let next = {
+          ...payload,
+          progress: merged,
+          finished,
+          firstFinishAt,
+          racers: payload.racers || raceState.racers,
+        };
         const me = getMember();
         if (me) next.progress[me] = Math.max(Number(next.progress[me]) || 0, raceLocalProgress);
         next = maybeFinishRace(next);
         const wasDone = raceState.phase === "done";
         raceState = next;
         if (next.phase === "done" && !wasDone) renderRace();
-        else paintRaceProgress();
+        else {
+          paintRaceProgress();
+          if (next.firstFinishAt) scheduleRaceFinishCheck(next);
+        }
         return;
       }
       if (payload.phase === "countdown" || payload.phase === "idle" || payload.phase === "done") {
