@@ -24,29 +24,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=Shippori+Mincho:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap"
       rel="stylesheet"
     />
     <style>
 :root {
-  --bg: #fdf5ea;
+  --bg: #fff5fb;
   --bg-elevated: #ffffff;
-  --ink: #2a1d17;
-  --ink-soft: #6d5c51;
-  --line: rgba(42, 29, 23, 0.12);
-  --accent: #e0452c;
-  --accent-soft: rgba(224, 69, 44, 0.1);
-  --accent-strong: #b8341e;
-  --indigo: #26486f;
-  --gold: #cf9b3f;
-  --matcha: #6f8f4e;
-  --chip-bg: #f4ede1;
-  --shadow: 0 2px 10px rgba(42, 29, 23, 0.06);
-  --radius: 16px;
-  --font-display: "Shippori Mincho", "Noto Serif TC", "Songti TC", serif;
-  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --ink: #3b2a45;
+  --ink-soft: #7a6688;
+  --line: rgba(59, 42, 69, 0.14);
+  --accent: #ff5c8a;
+  --accent-soft: rgba(255, 92, 138, 0.14);
+  --accent-strong: #e8326b;
+  --indigo: #5b7cfa;
+  --gold: #ffc857;
+  --matcha: #6fd3a3;
+  --chip-bg: #ffe8f3;
+  --shadow: 4px 4px 0 rgba(59, 42, 69, 0.12);
+  --radius: 22px;
+  --font-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  --font-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
   --max: 720px;
   --nav-h: 52px;
+  --candy-pink: #ff7eb6;
+  --candy-mint: #7dffa8;
+  --candy-lemon: #ffe566;
+  --candy-sky: #7ecbff;
 }
 
 *,
@@ -68,39 +72,40 @@ body {
   line-height: 1.65;
   background-color: var(--bg);
   background-image:
-    radial-gradient(1150px 520px at 50% -14%, rgba(224, 69, 44, 0.26), transparent 60%),
-    radial-gradient(760px 440px at 112% 6%, rgba(224, 122, 44, 0.2), transparent 58%),
-    radial-gradient(720px 480px at -10% 20%, rgba(230, 108, 150, 0.12), transparent 55%),
-    radial-gradient(860px 560px at -14% 102%, rgba(38, 72, 111, 0.14), transparent 58%),
-    radial-gradient(760px 520px at 114% 108%, rgba(111, 143, 78, 0.14), transparent 60%),
-    radial-gradient(680px 460px at 50% 52%, rgba(207, 155, 63, 0.12), transparent 72%),
-    linear-gradient(180deg, #fff7f1 0%, #fdeede 38%, #f7ead9 72%, #f3e4d0 100%);
+    radial-gradient(circle at 12% 18%, rgba(255, 126, 182, 0.35), transparent 42%),
+    radial-gradient(circle at 88% 8%, rgba(126, 203, 255, 0.32), transparent 40%),
+    radial-gradient(circle at 80% 78%, rgba(125, 255, 168, 0.28), transparent 45%),
+    radial-gradient(circle at 18% 88%, rgba(255, 229, 102, 0.3), transparent 40%),
+    linear-gradient(180deg, #fff8fd 0%, #ffeef7 45%, #eef9ff 100%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Seigaiha waves — Kyoto/Osaka water motif (subtle base layer). */
+/* Kawaii doodle polka dots */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.4;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='112' height='56' viewBox='0 0 112 56'%3E%3Cg fill='none' stroke-width='1.5'%3E%3Cpath d='M0 56a28 28 0 0 1 56 0a28 28 0 0 1 56 0' stroke='%23e0452c' stroke-opacity='0.1'/%3E%3Cpath d='M-56 56a28 28 0 0 1 56 0a28 28 0 0 1 56 0' stroke='%2326486f' stroke-opacity='0.08'/%3E%3Cpath d='M0 56a16 16 0 0 1 32 0a16 16 0 0 1 32 0a16 16 0 0 1 32 0a16 16 0 0 1 32 0' stroke='%23cf9b3f' stroke-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 112px 56px;
+  opacity: 0.55;
+  background-image: radial-gradient(#ff7eb6 1.6px, transparent 1.7px),
+    radial-gradient(#7ecbff 1.4px, transparent 1.5px),
+    radial-gradient(#ffe566 1.5px, transparent 1.6px);
+  background-size: 42px 42px, 56px 56px, 48px 48px;
+  background-position: 0 0, 18px 22px, 30px 8px;
   z-index: 0;
 }
 
-/* Momiji — scattered maple leaves for an autumn Kyoto feel (hero layer). */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.18;
   z-index: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'%3E%3Cg stroke='none'%3E%3Cg transform='translate(26 30) rotate(12) scale(0.52)' fill='%23e0452c' fill-opacity='0.16'%3E%3Cpath d='M50 2c3 15 10 20 19 16-5 9-3 15 6 16-7 6-6 12 2 16-9 3-11 9-6 17-9-2-15 2-15 13-4-11-10-15-19-13 5-8 3-14-6-17 8-4 9-10 2-16 9-1 11-7 6-16 9 4 16-1 19-16z'/%3E%3C/g%3E%3Cg transform='translate(236 70) rotate(-24) scale(0.4)' fill='%23e07a2c' fill-opacity='0.16'%3E%3Cpath d='M50 2c3 15 10 20 19 16-5 9-3 15 6 16-7 6-6 12 2 16-9 3-11 9-6 17-9-2-15 2-15 13-4-11-10-15-19-13 5-8 3-14-6-17 8-4 9-10 2-16 9-1 11-7 6-16 9 4 16-1 19-16z'/%3E%3C/g%3E%3Cg transform='translate(150 158) rotate(44) scale(0.46)' fill='%23cf9b3f' fill-opacity='0.17'%3E%3Cpath d='M50 2c3 15 10 20 19 16-5 9-3 15 6 16-7 6-6 12 2 16-9 3-11 9-6 17-9-2-15 2-15 13-4-11-10-15-19-13 5-8 3-14-6-17 8-4 9-10 2-16 9-1 11-7 6-16 9 4 16-1 19-16z'/%3E%3C/g%3E%3Cg transform='translate(40 236) rotate(-14) scale(0.42)' fill='%23c0392b' fill-opacity='0.14'%3E%3Cpath d='M50 2c3 15 10 20 19 16-5 9-3 15 6 16-7 6-6 12 2 16-9 3-11 9-6 17-9-2-15 2-15 13-4-11-10-15-19-13 5-8 3-14-6-17 8-4 9-10 2-16 9-1 11-7 6-16 9 4 16-1 19-16z'/%3E%3C/g%3E%3Cg transform='translate(250 250) rotate(28) scale(0.5)' fill='%23e0452c' fill-opacity='0.13'%3E%3Cpath d='M50 2c3 15 10 20 19 16-5 9-3 15 6 16-7 6-6 12 2 16-9 3-11 9-6 17-9-2-15 2-15 13-4-11-10-15-19-13 5-8 3-14-6-17 8-4 9-10 2-16 9-1 11-7 6-16 9 4 16-1 19-16z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  background-size: 320px 320px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Ccircle cx='30' cy='40' r='10' fill='none' stroke='%23ff5c8a' stroke-width='3'/%3E%3Cpath d='M70 28l6 14 15 2-12 10 3 15-12-8-12 8 3-15-12-10 15-2z' fill='none' stroke='%235b7cfa' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M130 50c8 0 14 8 14 16s-14 20-14 20-14-12-14-20 6-16 14-16z' fill='none' stroke='%23ff5c8a' stroke-width='3'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
 }
 
 a {
@@ -129,59 +134,79 @@ img {
 }
 
 .hero::before {
-  content: "";
-  display: block;
-  width: 72px;
-  height: 6px;
-  margin-bottom: 1.5rem;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent) 0 40%, var(--gold) 40% 70%, var(--indigo) 70% 100%);
+  display: none;
 }
 
 .hero-kicker {
   margin: 0 0 0.6rem;
   color: var(--accent-strong);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
 }
 
-.hero h1 {
+.hero h1,
+.wave-title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 8vw, 3.4rem);
-  font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: 0.04em;
+  font-size: clamp(2.2rem, 8vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.wave-title .wave-char {
+  display: inline-block;
+  animation: waveY 1.4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.08s);
+  color: var(--ink);
+  text-shadow: 3px 3px 0 rgba(255, 126, 182, 0.35);
 }
 
 .hero-lead {
   margin: 1rem 0 0;
-  max-width: 28ch;
+  max-width: 32ch;
   color: var(--ink-soft);
   font-size: 1.05rem;
+  font-weight: 500;
 }
 
 .hero-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
+  gap: 0.5rem 0.75rem;
   margin-top: 1.25rem;
   color: var(--ink);
   font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .hero-status {
-  margin-top: 1rem;
-  display: inline-block;
-  padding: 0.4rem 0.85rem;
-  background: linear-gradient(180deg, #fff 0%, #fff6e9 100%);
-  border: 1px solid color-mix(in srgb, var(--gold) 55%, var(--line));
-  color: var(--accent-strong);
+  margin-top: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 1.15rem;
+  background: linear-gradient(180deg, #fff7ad 0%, #ff8ec8 55%, #ff5c8a 100%);
+  border: 3px solid #3b2a45;
+  color: #3b2a45;
   border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 900;
+  box-shadow: 4px 4px 0 #3b2a45;
+  cursor: pointer;
+  user-select: none;
+  animation: candyBounce 1.1s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-status:focus-visible {
+  outline: 3px solid var(--candy-sky);
+  outline-offset: 3px;
 }
 
 .hero-actions {
@@ -193,36 +218,42 @@ img {
 
 .btn {
   appearance: none;
-  border: 1px solid transparent;
+  border: 3px solid #3b2a45;
   border-radius: 999px;
-  padding: 0.7rem 1.2rem;
+  padding: 0.7rem 1.25rem;
   font: inherit;
   font-size: 0.95rem;
+  font-weight: 800;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  box-shadow: 4px 4px 0 #3b2a45;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, background 0.15s ease;
+  transform-origin: center;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
 }
 
 .btn:active {
-  transform: scale(0.98);
+  animation: squishy 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-primary {
-  background: var(--accent);
+  background: linear-gradient(180deg, #ff9ec8, #ff5c8a);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: var(--accent-strong);
+  background: linear-gradient(180deg, #ffb3d4, #ff5c8a);
 }
 
 .btn-ghost {
-  background: transparent;
-  border-color: var(--line);
+  background: #fff;
   color: var(--ink);
 }
 
 .btn-ghost:hover {
-  border-color: rgba(28, 27, 25, 0.28);
+  background: #fff7ad;
 }
 
 /* Sticky nav */
@@ -2133,6 +2164,271 @@ img {
   .notes-area {
     border: 1px solid #ccc;
   }
+
+  .kawaii-walker,
+  .doodle-sticker,
+  .emoji-burst {
+    display: none !important;
+  }
+}
+
+/* ===== Kawaii doodle layer ===== */
+@keyframes waveY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes candyBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-7px) scale(1.04); }
+  60% { transform: translateY(-2px) scale(0.98); }
+}
+
+@keyframes squishy {
+  0% { transform: scale(1, 1); }
+  30% { transform: scale(1.12, 0.82); box-shadow: 2px 2px 0 #3b2a45; }
+  55% { transform: scale(0.9, 1.12); }
+  100% { transform: scale(1, 1); box-shadow: 4px 4px 0 #3b2a45; }
+}
+
+@keyframes stickerPop {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  50% { transform: scale(1.12) rotate(2deg); }
+}
+
+@keyframes avatarWobble {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes walkAcross {
+  0% { transform: translateX(-120%) translateY(0) rotate(-2deg); }
+  25% { transform: translateX(25vw) translateY(-6px) rotate(3deg); }
+  50% { transform: translateX(50vw) translateY(0) rotate(-2deg); }
+  75% { transform: translateX(75vw) translateY(-5px) rotate(3deg); }
+  100% { transform: translateX(110vw) translateY(0) rotate(-1deg); }
+}
+
+@keyframes burstFly {
+  0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.4) rotate(var(--rot)); }
+}
+
+.hero {
+  overflow: visible;
+}
+
+.hero-stickers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.doodle-sticker {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  filter: drop-shadow(0 0 0 #fff) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff)
+    drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(3px 3px 0 rgba(59, 42, 69, 0.15));
+  animation: wiggle 1.6s ease-in-out infinite;
+  z-index: 1;
+}
+
+.doodle-sticker svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.doodle-sticker.s1 { top: 0.2rem; right: 0.2rem; animation-delay: 0s; }
+.doodle-sticker.s2 { top: 3.2rem; right: 3.6rem; width: 46px; height: 46px; animation-delay: 0.2s; }
+.doodle-sticker.s3 { top: 0.8rem; left: 42%; width: 42px; height: 42px; animation-delay: 0.4s; }
+.doodle-sticker.s4 { bottom: 0.4rem; right: 12%; width: 48px; height: 48px; animation-delay: 0.1s; }
+.doodle-sticker.s5 { top: 5.5rem; left: 0; width: 44px; height: 44px; animation-delay: 0.35s; }
+.doodle-sticker.s6 { bottom: 2.2rem; left: 18%; width: 40px; height: 40px; animation-delay: 0.55s; }
+
+.card,
+.boarding-pass,
+.route-card,
+.day-panel-head,
+.booking-card {
+  position: relative;
+}
+
+.card-sticker {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  top: -10px;
+  right: -8px;
+  pointer-events: none;
+  z-index: 3;
+  filter: drop-shadow(0 0 0 #fff) drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff);
+  animation: wiggle 1.8s ease-in-out infinite;
+}
+
+.nav {
+  border-bottom: 3px solid #3b2a45;
+  border-radius: 0 0 18px 18px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.nav-track a {
+  border: 2px solid #3b2a45;
+  box-shadow: 2px 2px 0 #3b2a45;
+  font-weight: 800;
+  background: #fff;
+}
+
+.nav-track a:hover,
+.nav-track a.is-active {
+  background: var(--candy-lemon);
+}
+
+.shared-bar {
+  border: 3px solid #3b2a45;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #e9fff4, #c9ffe0);
+  box-shadow: 4px 4px 0 #3b2a45;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.shared-avatars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-right: 0.15rem;
+}
+
+.shared-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #3b2a45;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  box-shadow: 2px 2px 0 rgba(59, 42, 69, 0.2);
+  animation: avatarWobble 1.5s ease-in-out infinite;
+}
+
+.shared-avatar:nth-child(2) { animation-delay: 0.15s; background: #ffe8f3; }
+.shared-avatar:nth-child(3) { animation-delay: 0.3s; background: #e8f7ff; }
+.shared-avatar:nth-child(4) { animation-delay: 0.45s; background: #fff7ad; }
+
+.board-sticker-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.65rem;
+}
+
+.board-sticker-btn {
+  appearance: none;
+  border: 2.5px solid #3b2a45;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #3b2a45;
+}
+
+.board-sticker-btn:active {
+  animation: squishy 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.board-sticker-btn:nth-child(1) { background: #ffe566; }
+.board-sticker-btn:nth-child(2) { background: #ffd0e8; }
+.board-sticker-btn:nth-child(3) { background: #c9ffe0; }
+.board-sticker-btn:nth-child(4) { background: #d6e6ff; }
+.board-sticker-btn:nth-child(5) { background: #ffd7c2; }
+
+.board-body.is-sticker-msg {
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  font-weight: 900;
+  line-height: 1.3;
+  animation: stickerPop 0.9s ease-in-out infinite;
+  text-shadow: 2px 2px 0 rgba(255, 126, 182, 0.35);
+}
+
+.emoji-burst {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.emoji-burst span {
+  position: absolute;
+  font-size: 1.35rem;
+  animation: burstFly 0.95s ease-out forwards;
+}
+
+.kawaii-walker {
+  position: fixed;
+  left: 0;
+  bottom: 0.6rem;
+  width: 78px;
+  height: 58px;
+  z-index: 30;
+  pointer-events: none;
+  animation: walkAcross 18s linear infinite;
+}
+
+.kawaii-walker svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 0 #fff) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff)
+    drop-shadow(0 2px 0 #fff);
+}
+
+.section-head h2 {
+  font-weight: 900;
+}
+
+.card {
+  border: 3px solid #3b2a45;
+  box-shadow: 4px 4px 0 rgba(59, 42, 69, 0.14);
+}
+
+.boarding-pass {
+  border: 3px solid #3b2a45;
+  box-shadow: 5px 5px 0 rgba(59, 42, 69, 0.16);
+}
+
+.footer {
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-title .wave-char,
+  .doodle-sticker,
+  .card-sticker,
+  .hero-status,
+  .shared-avatar,
+  .board-body.is-sticker-msg,
+  .kawaii-walker {
+    animation: none !important;
+  }
 }
 
     </style>
@@ -2140,11 +2436,19 @@ img {
   <body>
     <div class="page">
       <header class="hero" id="top">
-        <p class="hero-kicker">Travel handbook</p>
-        <h1 id="trip-title">大阪京都露營瘋女18</h1>
+        <div class="hero-stickers" aria-hidden="true" id="hero-stickers"></div>
+        <p class="hero-kicker">✧ 超可愛露營手帳 ✧</p>
+        <h1 id="trip-title" class="wave-title" aria-label="大阪京都露營瘋女18">大阪京都露營瘋女18</h1>
         <p class="hero-lead" id="trip-subtitle">秋日紅葉・海之京都・難波夜遊</p>
         <div class="hero-meta" id="trip-meta"></div>
-        <div class="hero-status" id="trip-status" aria-live="polite"></div>
+        <div
+          class="hero-status"
+          id="trip-status"
+          role="button"
+          tabindex="0"
+          aria-live="polite"
+          title="點我撒可愛粒子！"
+        ></div>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#flights">查看航班</a>
           <button type="button" class="btn btn-ghost" id="jump-today">跳到今日行程</button>
@@ -2190,6 +2494,13 @@ img {
           </div>
           <div class="board-wrap" hidden>
             <ul class="board-list" id="board-list"></ul>
+            <div class="board-sticker-bar" id="board-sticker-bar" hidden>
+              <button type="button" class="board-sticker-btn" data-sticker="衝鴨🦆">衝鴨🦆</button>
+              <button type="button" class="board-sticker-btn" data-sticker="餓了🍙">餓了🍙</button>
+              <button type="button" class="board-sticker-btn" data-sticker="買爆💸">買爆💸</button>
+              <button type="button" class="board-sticker-btn" data-sticker="乾杯🍻">乾杯🍻</button>
+              <button type="button" class="board-sticker-btn" data-sticker="救命🆘">救命🆘</button>
+            </div>
             <form class="board-form" id="board-form">
               <input
                 type="text"
@@ -2268,8 +2579,24 @@ img {
       </main>
 
       <footer class="footer">
-        大阪京都露營瘋女18 · 2026/11/19–11/24 · 離線也可開啟本頁
+        大阪京都露營瘋女18 · 2026/11/19–11/24 · 離線也可開啟本頁 ✨
       </footer>
+    </div>
+
+    <div class="kawaii-walker" aria-hidden="true" title="露營小車車路過">
+      <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="60" cy="70" rx="34" ry="5" fill="#3b2a45" opacity="0.15"/>
+        <rect x="18" y="34" width="72" height="28" rx="10" fill="#ff8ec8" stroke="#3b2a45" stroke-width="3"/>
+        <path d="M40 34 V22 h28 a8 8 0 0 1 8 8 v4" fill="#7ecbff" stroke="#3b2a45" stroke-width="3"/>
+        <circle cx="36" cy="62" r="9" fill="#3b2a45"/>
+        <circle cx="36" cy="62" r="4" fill="#ffe566"/>
+        <circle cx="78" cy="62" r="9" fill="#3b2a45"/>
+        <circle cx="78" cy="62" r="4" fill="#ffe566"/>
+        <circle cx="96" cy="48" r="7" fill="#ffe566" stroke="#3b2a45" stroke-width="3"/>
+        <circle cx="94" cy="46" r="1.3" fill="#3b2a45"/>
+        <circle cx="98" cy="46" r="1.3" fill="#3b2a45"/>
+        <path d="M93 50 q3 3 6 0" fill="none" stroke="#3b2a45" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
     </div>
 
     <script>
@@ -2942,8 +3269,22 @@ window.TRIP_DATA = {
     return match || DATA.days[0];
   }
 
+  function waveTitleHtml(text) {
+    return Array.from(String(text || ""))
+      .map(
+        (ch, i) =>
+          `<span class="wave-char" style="--i:${i}">${
+            ch === " " ? "&nbsp;" : escapeHtml(ch)
+          }</span>`
+      )
+      .join("");
+  }
+
   function renderHero() {
-    document.getElementById("trip-title").textContent = DATA.trip.title;
+    const titleEl = document.getElementById("trip-title");
+    titleEl.classList.add("wave-title");
+    titleEl.setAttribute("aria-label", DATA.trip.title);
+    titleEl.innerHTML = waveTitleHtml(DATA.trip.title);
     document.getElementById("trip-subtitle").textContent = DATA.trip.subtitle;
 
     const meta = document.getElementById("trip-meta");
@@ -2961,15 +3302,88 @@ window.TRIP_DATA = {
 
     if (todayIso < start) {
       const n = daysBetween(todayIso, start);
-      statusEl.textContent = n === 0 ? "今天出發！" : `距離出發還有 ${n} 天`;
+      statusEl.textContent =
+        n === 0 ? "🎉 今天出發！" : `🍬 距離出發還有 ${n} 天`;
     } else if (todayIso > end) {
-      statusEl.textContent = "旅途已結束 · 回憶存檔中";
+      statusEl.textContent = "📔 旅途已結束 · 回憶存檔中";
     } else {
       const day = DATA.days.find((d) => d.date === todayIso);
       statusEl.textContent = day
-        ? `今日是 Day ${day.day} · ${day.title}`
-        : "旅途進行中";
+        ? `✨ 今日是 Day ${day.day} · ${day.title}`
+        : "✨ 旅途進行中";
     }
+
+    if (!statusEl.dataset.burstBound) {
+      statusEl.dataset.burstBound = "1";
+      const burst = (e) => {
+        const x = e.clientX != null ? e.clientX : statusEl.getBoundingClientRect().left + statusEl.offsetWidth / 2;
+        const y = e.clientY != null ? e.clientY : statusEl.getBoundingClientRect().top + statusEl.offsetHeight / 2;
+        spawnEmojiBurst(x, y);
+      };
+      statusEl.addEventListener("click", burst);
+      statusEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          burst(e);
+        }
+      });
+    }
+
+    paintHeroStickers();
+  }
+
+  const KAWAII_STICKERS = [
+    { id: "sun", svg: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="14" fill="#ffe566" stroke="#3b2a45" stroke-width="3"/><g stroke="#3b2a45" stroke-width="3" stroke-linecap="round"><path d="M32 6v8M32 50v8M6 32h8M50 32h8M12 12l6 6M46 46l6 6M12 52l6-6M46 18l6-6"/></g><circle cx="26" cy="30" r="2.2" fill="#3b2a45"/><circle cx="38" cy="30" r="2.2" fill="#3b2a45"/><path d="M25 38c3 4 11 4 14 0" fill="none" stroke="#3b2a45" stroke-width="2.5" stroke-linecap="round"/></svg>` },
+    { id: "tent", svg: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M8 50 L32 12 L56 50 Z" fill="#7ecbff" stroke="#3b2a45" stroke-width="3" stroke-linejoin="round"/><path d="M32 12 L32 50" stroke="#3b2a45" stroke-width="3"/><path d="M22 50 L32 34 L42 50" fill="#ff8ec8" stroke="#3b2a45" stroke-width="2.5" stroke-linejoin="round"/></svg>` },
+    { id: "fire", svg: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 8c8 10 18 16 18 28a18 18 0 1 1-36 0c0-8 6-14 10-18 2 8 8 10 8 10S28 20 32 8z" fill="#ff7eb6" stroke="#3b2a45" stroke-width="3" stroke-linejoin="round"/><path d="M32 28c4 5 8 8 8 14a8 8 0 1 1-16 0c0-4 3-7 5-9 1 4 3 5 3 5s-1-5 0-10z" fill="#ffe566" stroke="#3b2a45" stroke-width="2.5"/></svg>` },
+    { id: "dango", svg: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M12 52 L48 10" stroke="#3b2a45" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="42" r="8" fill="#ffb3d4" stroke="#3b2a45" stroke-width="3"/><circle cx="32" cy="30" r="8" fill="#fff0a8" stroke="#3b2a45" stroke-width="3"/><circle cx="42" cy="18" r="8" fill="#c9ffe0" stroke="#3b2a45" stroke-width="3"/></svg>` },
+    { id: "heart", svg: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 52s-18-11-18-26a11 11 0 0 1 20-6 11 11 0 0 1 20 6c0 15-18 26-18 26z" fill="#ff5c8a" stroke="#3b2a45" stroke-width="3" stroke-linejoin="round"/></svg>` },
+    { id: "star", svg: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 8l6 16h17l-14 10 5 17-14-10-14 10 5-17-14-10h17z" fill="#ffe566" stroke="#3b2a45" stroke-width="3" stroke-linejoin="round"/></svg>` },
+  ];
+
+  function paintHeroStickers() {
+    const host = document.getElementById("hero-stickers");
+    if (!host || host.dataset.ready) return;
+    host.dataset.ready = "1";
+    host.innerHTML = KAWAII_STICKERS.map(
+      (s, i) => `<div class="doodle-sticker s${i + 1}">${s.svg}</div>`
+    ).join("");
+  }
+
+  function spawnEmojiBurst(x, y) {
+    const emojis = ["🍁", "⛺", "🍙", "💖", "✨", "🍻"];
+    const layer = document.createElement("div");
+    layer.className = "emoji-burst";
+    layer.style.left = x + "px";
+    layer.style.top = y + "px";
+    for (let i = 0; i < 15; i++) {
+      const span = document.createElement("span");
+      span.textContent = emojis[i % emojis.length];
+      const angle = (Math.PI * 2 * i) / 15 + Math.random() * 0.4;
+      const dist = 70 + Math.random() * 90;
+      span.style.setProperty("--dx", Math.cos(angle) * dist + "px");
+      span.style.setProperty("--dy", Math.sin(angle) * dist + "px");
+      span.style.setProperty("--rot", (Math.random() * 240 - 120) + "deg");
+      span.style.animationDelay = Math.random() * 0.08 + "s";
+      layer.appendChild(span);
+    }
+    document.body.appendChild(layer);
+    setTimeout(() => layer.remove(), 1100);
+  }
+
+  function decorateCardStickers() {
+    const targets = document.querySelectorAll(
+      ".boarding-pass, .route-card, .hotel-card, .booking-card, .day-panel-head"
+    );
+    targets.forEach((el, idx) => {
+      if (el.querySelector(".card-sticker")) return;
+      const sticker = document.createElement("div");
+      sticker.className = "card-sticker";
+      sticker.setAttribute("aria-hidden", "true");
+      sticker.innerHTML = KAWAII_STICKERS[idx % KAWAII_STICKERS.length].svg;
+      sticker.style.animationDelay = (idx % 5) * 0.12 + "s";
+      el.appendChild(sticker);
+    });
   }
 
   function renderFlights() {
@@ -3668,6 +4082,7 @@ window.TRIP_DATA = {
     bindNotes();
     bindJumpToday();
     bindNavActive();
+    decorateCardStickers();
   }
 
   if (document.readyState === "loading") {
@@ -3923,11 +4338,27 @@ window.TRIP_DATA = {
   }
 
   // ---------- shared bar ----------
+  const MEMBER_AVATARS = {
+    阿亭: "🐰",
+    阿瓜: "🐸",
+    茶米: "🐱",
+    阿萱: "🐻",
+  };
+
   function renderBar(member) {
     const bar = document.getElementById("shared-bar");
     if (!bar) return;
     bar.hidden = false;
+    const avatars = memberList()
+      .map(
+        (n) =>
+          `<span class="shared-avatar" title="${esc(n)}">${
+            MEMBER_AVATARS[n] || "🐥"
+          }</span>`
+      )
+      .join("");
     bar.innerHTML = `
+      <span class="shared-avatars" aria-hidden="true">${avatars}</span>
       <span class="shared-dot" aria-hidden="true"></span>
       <span>共享已連線 · 你是 <strong>${esc(member)}</strong></span>
       <button type="button" class="shared-switch" id="shared-switch">切換身分</button>`;
@@ -4209,22 +4640,35 @@ window.TRIP_DATA = {
     }
   }
 
+  const BOARD_STICKERS = ["衝鴨🦆", "餓了🍙", "買爆💸", "乾杯🍻", "救命🆘"];
+
+  function isBoardSticker(body) {
+    const t = String(body || "").trim();
+    return BOARD_STICKERS.indexOf(t) >= 0 || /^【貼圖】/.test(t);
+  }
+
   function paintMessages(items) {
     const listEl = document.getElementById("board-list");
     if (!listEl) return;
     const me = getMember();
     listEl.innerHTML = items
-      .map(
-        (m) => `
+      .map((m) => {
+        const sticker = isBoardSticker(m.body);
+        const bodyHtml = sticker
+          ? `<div class="board-body is-sticker-msg">${esc(
+              String(m.body || "").replace(/^【貼圖】/, "")
+            )}</div>`
+          : `<div class="board-body">${renderBody(m.body)}</div>`;
+        return `
       <li class="board-item${m.member === me ? " is-me" : ""}">
         <div class="board-bubble">
           <div class="board-who">${esc(m.member)} <span class="board-time">${fmtTime(
             m.created_at
           )}</span></div>
-          <div class="board-body">${renderBody(m.body)}</div>
+          ${bodyHtml}
         </div>
-      </li>`
-      )
+      </li>`;
+      })
       .join("");
     listEl.scrollTop = listEl.scrollHeight;
   }
@@ -4281,6 +4725,19 @@ window.TRIP_DATA = {
     checkMentions(items);
   }
 
+  async function postBoardMessage(body) {
+    const text = String(body || "").trim();
+    if (!text) return false;
+    const { error } = await supabase.from("trip_messages").insert({
+      trip_id: TRIP,
+      member: getMember() || "匿名",
+      body: text,
+    });
+    if (error) return false;
+    refreshMessages();
+    return true;
+  }
+
   function bindBoard() {
     const section = document.getElementById("board");
     if (!section) return;
@@ -4291,6 +4748,18 @@ window.TRIP_DATA = {
 
     const form = document.getElementById("board-form");
     const input = document.getElementById("board-input");
+    const stickerBar = document.getElementById("board-sticker-bar");
+    if (stickerBar) {
+      stickerBar.hidden = false;
+      if (!stickerBar.dataset.bound) {
+        stickerBar.dataset.bound = "1";
+        stickerBar.addEventListener("click", async (e) => {
+          const btn = e.target.closest("[data-sticker]");
+          if (!btn) return;
+          await postBoardMessage(btn.dataset.sticker);
+        });
+      }
+    }
 
     renderMentionBar();
 
@@ -4299,16 +4768,8 @@ window.TRIP_DATA = {
       const body = (input.value || "").trim();
       if (!body) return;
       input.value = "";
-      const { error } = await supabase.from("trip_messages").insert({
-        trip_id: TRIP,
-        member: getMember() || "匿名",
-        body,
-      });
-      if (error) {
-        input.value = body;
-        return;
-      }
-      refreshMessages();
+      const ok = await postBoardMessage(body);
+      if (!ok) input.value = body;
     });
   }
 
