@@ -315,6 +315,74 @@ img {
   animation: pulseSoft 1.8s ease 1;
 }
 
+.route-card {
+  padding-bottom: 1rem;
+}
+
+.route-card h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.route-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin: 0 0 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--indigo);
+}
+
+.route-path .route-arrow {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.route-mode {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(38, 72, 111, 0.1);
+  color: var(--indigo);
+}
+
+.route-card > p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.route-map {
+  margin-top: 0.85rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #ece7df;
+  aspect-ratio: 4 / 3;
+  min-height: 260px;
+}
+
+.route-map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  border: 0;
+}
+
+.route-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
 .flight-card {
   display: grid;
   gap: 0.75rem;
@@ -1838,7 +1906,7 @@ img {
         <section class="section" id="transport">
           <div class="section-head">
             <h2>交通速查</h2>
-            <p>這趟會反覆用到的動線，先記在這裡</p>
+            <p>這趟會反覆用到的 Google 路線，可直接在網頁上看地圖</p>
           </div>
           <div class="stack" id="transport-root"></div>
         </section>
@@ -2010,20 +2078,44 @@ window.TRIP_DATA = {
 
   transportTips: [
     {
-      title: "南海特急 Rapi:t",
-      detail: "關西機場 ⇄ 南海難波站，約 38–50 分鐘；去程約 20:00–20:50 完成入境後搭乘，回程建議 11:30 自難波出發。",
+      title: "南海特急 Rapi:t（去程）",
+      detail:
+        "關西機場 → 南海難波站，約 38–50 分鐘；去程約 20:00–20:50 完成入境後搭乘。",
+      origin: "関西国際空港",
+      destination: "南海難波駅",
+      originLabel: "關西國際機場",
+      destinationLabel: "南海難波站",
+      mode: "transit",
     },
     {
       title: "阪急京都線",
-      detail: "大阪梅田 ➔ 烏丸站；Day2 從大阪轉京都、Day5 回大阪皆可使用。烏丸站步行可至四條烏丸住宿。",
+      detail:
+        "大阪梅田 → 烏丸站；Day2 從大阪轉京都、Day5 回大阪皆可使用。烏丸站步行可至四條烏丸住宿。",
+      origin: "大阪梅田",
+      destination: "烏丸駅",
+      originLabel: "大阪梅田",
+      destinationLabel: "烏丸站",
+      mode: "transit",
     },
     {
       title: "First Cabin 入口",
-      detail: "地鐵難波站 13 號出口直奔 First Cabin Midosuji-Namba，適合寄放行李後心齋橋購物。",
+      detail:
+        "地鐵難波站 13 號出口直奔 First Cabin Midosuji-Namba，適合寄放行李後心齋橋購物。",
+      origin: "大阪難波駅",
+      destination: "First Cabin Midosuji-Namba",
+      originLabel: "大阪難波站",
+      destinationLabel: "First Cabin 御堂筋難波",
+      mode: "walking",
     },
     {
-      title: "黑門市場 → 機場",
-      detail: "黑門市場步行約 8 分鐘回 First Cabin 取行李，再往南海難波站搭 Rapi:t 直達 KIX。",
+      title: "黑門市場 → 機場（回程）",
+      detail:
+        "黑門市場步行約 8 分鐘回 First Cabin 取行李，再往南海難波站搭 Rapi:t 直達 KIX；回程建議 11:30 自難波出發。",
+      origin: "黒門市場",
+      destination: "関西国際空港",
+      originLabel: "黑門市場",
+      destinationLabel: "關西國際機場",
+      mode: "transit",
     },
   ],
 
@@ -2682,19 +2774,91 @@ window.TRIP_DATA = {
       .join("");
   }
 
+  function modeLabel(mode) {
+    return (
+      {
+        transit: "大眾運輸",
+        walking: "步行",
+        driving: "開車",
+        bicycling: "自行車",
+      }[mode] || "路線"
+    );
+  }
+
+  function mapsDirectionsEmbedUrl(origin, destination, mode) {
+    const dirflg =
+      { transit: "r", walking: "w", driving: "d", bicycling: "b" }[mode] || "r";
+    return (
+      "https://maps.google.com/maps?saddr=" +
+      encodeURIComponent(origin) +
+      "&daddr=" +
+      encodeURIComponent(destination) +
+      "&dirflg=" +
+      dirflg +
+      "&hl=zh-TW&output=embed"
+    );
+  }
+
+  function mapsDirectionsUrl(origin, destination, mode) {
+    return (
+      "https://www.google.com/maps/dir/?api=1&origin=" +
+      encodeURIComponent(origin) +
+      "&destination=" +
+      encodeURIComponent(destination) +
+      "&travelmode=" +
+      encodeURIComponent(mode || "transit") +
+      "&hl=zh-TW"
+    );
+  }
+
   function renderTransport() {
     const root = document.getElementById("transport-root");
     root.innerHTML = DATA.transportTips
-      .map(
-        (t) => `
-      <article class="card">
-        <h3 style="margin:0 0 0.35rem;font-family:var(--font-display);font-size:1.1rem">${escapeHtml(
-          t.title
-        )}</h3>
-        <p style="margin:0;color:var(--ink-soft);font-size:0.95rem">${escapeHtml(t.detail)}</p>
-      </article>
-    `
-      )
+      .map((t) => {
+        const from = t.originLabel || t.origin || "";
+        const to = t.destinationLabel || t.destination || "";
+        const mode = t.mode || "transit";
+        const hasRoute = t.origin && t.destination;
+        const embed = hasRoute
+          ? mapsDirectionsEmbedUrl(t.origin, t.destination, mode)
+          : "";
+        const openUrl = hasRoute
+          ? mapsDirectionsUrl(t.origin, t.destination, mode)
+          : "";
+        return `
+      <article class="card route-card">
+        <h3>${escapeHtml(t.title)}</h3>
+        ${
+          hasRoute
+            ? `<div class="route-path">
+                <span>${escapeHtml(from)}</span>
+                <span class="route-arrow" aria-hidden="true">→</span>
+                <span>${escapeHtml(to)}</span>
+                <span class="route-mode">${escapeHtml(modeLabel(mode))}</span>
+              </div>`
+            : ""
+        }
+        <p>${escapeHtml(t.detail)}</p>
+        ${
+          hasRoute
+            ? `<div class="route-map">
+                <iframe
+                  title="${escapeHtml(t.title)} Google 路線"
+                  src="${escapeHtml(embed)}"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  allowfullscreen
+                ></iframe>
+              </div>
+              <div class="route-actions">
+                <a class="btn btn-ghost" href="${escapeHtml(
+                  openUrl
+                )}" target="_blank" rel="noopener noreferrer">在 Google Maps 開啟</a>
+              </div>`
+            : ""
+        }
+      </article>`;
+      })
       .join("");
   }
 
