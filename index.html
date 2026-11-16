@@ -1802,13 +1802,36 @@ img {
 }
 
 .board-who {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.35rem;
   font-size: 0.78rem;
   color: var(--ink-soft);
   margin-bottom: 0.1rem;
 }
 
+.board-who-avatar {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.board-who-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .board-who .board-time {
-  margin-left: 0.35rem;
+  margin-left: 0.1rem;
   opacity: 0.75;
 }
 
@@ -4229,11 +4252,15 @@ window.TRIP_DATA = {
 
   // ---------- shared bar ----------
   const MEMBER_AVATARS = {
-    阿亭: "🐰",
-    阿瓜: "🐸",
-    茶米: "🐱",
-    阿萱: "🐻",
+    阿瓜: "🦆", // 唐老鴨
+    阿萱: "🐤", // 小雞
+    阿亭: "🐵", // 小猴
+    茶米: "🐶", // 小狗
   };
+
+  function memberAvatar(name) {
+    return MEMBER_AVATARS[name] || "🙂";
+  }
 
   function renderBar(member) {
     const bar = document.getElementById("shared-bar");
@@ -4242,15 +4269,15 @@ window.TRIP_DATA = {
     const avatars = memberList()
       .map(
         (n) =>
-          `<span class="shared-avatar" title="${esc(n)}">${
-            MEMBER_AVATARS[n] || "🐥"
-          }</span>`
+          `<span class="shared-avatar" title="${esc(n)}">${memberAvatar(n)}</span>`
       )
       .join("");
     bar.innerHTML = `
       <span class="shared-avatars" aria-hidden="true">${avatars}</span>
       <span class="shared-dot" aria-hidden="true"></span>
-      <span>共享已連線 · 你是 <strong>${esc(member)}</strong></span>
+      <span>共享已連線 · 你是 <span class="shared-avatar" title="${esc(
+        member
+      )}">${memberAvatar(member)}</span> <strong>${esc(member)}</strong></span>
       <button type="button" class="shared-switch" id="shared-switch">切換身分</button>`;
     bar.querySelector("#shared-switch").addEventListener("click", async () => {
       const name = await askName();
@@ -4549,12 +4576,17 @@ window.TRIP_DATA = {
               String(m.body || "").replace(/^【貼圖】/, "")
             )}</div>`
           : `<div class="board-body">${renderBody(m.body)}</div>`;
+        const who = m.member || "匿名";
         return `
       <li class="board-item${m.member === me ? " is-me" : ""}">
         <div class="board-bubble">
-          <div class="board-who">${esc(m.member)} <span class="board-time">${fmtTime(
-            m.created_at
-          )}</span></div>
+          <div class="board-who">
+            <span class="board-who-avatar" aria-hidden="true">${memberAvatar(
+              who
+            )}</span>
+            <span class="board-who-name">${esc(who)}</span>
+            <span class="board-time">${fmtTime(m.created_at)}</span>
+          </div>
           ${bodyHtml}
         </div>
       </li>`;
