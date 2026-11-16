@@ -2771,6 +2771,77 @@ img {
   }
 }
 
+.stairs-mode {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.stairs-mode-btn {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.88rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.stairs-mode-btn.is-active {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, #fff 0%, #fff2ec 100%);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.stairs-stage {
+  justify-items: center;
+}
+
+.stairs-hud {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.stairs-hud strong {
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+#stairs-canvas {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  aspect-ratio: 360 / 420;
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, #f7fbff 0%, #fffdf8 55%, #f3efe8 100%);
+  touch-action: none;
+}
+
+.stairs-controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.stairs-dir {
+  min-height: 2.8rem;
+  font-size: 1rem;
+}
+
+.stairs-dir:active {
+  animation: softSquish 0.28s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
     </style>
   </head>
   <body>
@@ -2910,13 +2981,14 @@ img {
             <h2>打發遊戲</h2>
             <p>四人同步小遊戲，等車／排隊時一起玩</p>
           </div>
-          <p class="games-hint-personal">需用「共享連結」開啟，並選好身分後才能一起玩。</p>
-          <p class="games-hint-shared" hidden>看到上方綠燈「共享已連線」後，切子頁籤就能開玩。</p>
-          <div class="games-wrap" id="games-wrap" hidden>
+          <p class="games-hint-personal">「小朋友下樓梯」可單人先玩；炸彈／賽車／連線模式需用共享連結。</p>
+          <p class="games-hint-shared" hidden>看到上方綠燈「共享已連線」後，切子頁籤就能連線開玩。</p>
+          <div class="games-wrap" id="games-wrap">
             <div class="game-subtabs" role="tablist" aria-label="遊戲子頁籤">
               <button type="button" class="game-subtab is-active" data-game-tab="how" role="tab" aria-selected="true">📖 怎麼玩</button>
               <button type="button" class="game-subtab" data-game-tab="bomb" role="tab" aria-selected="false">🧨 限時傳炸彈</button>
               <button type="button" class="game-subtab" data-game-tab="race" role="tab" aria-selected="false">🏎️ 動物狂點賽車</button>
+              <button type="button" class="game-subtab" data-game-tab="stairs" role="tab" aria-selected="false">🪜 小朋友下樓梯</button>
             </div>
 
             <div class="game-panel is-active" data-game-panel="how" role="tabpanel">
@@ -2929,10 +3001,11 @@ img {
                 </ol>
               </article>
               <article class="card game-note">
-                <h3>🎮 兩款遊戲規則</h3>
+                <h3>🎮 遊戲規則</h3>
                 <ul class="game-rules">
                   <li><strong>🧨 限時傳炸彈：</strong>炸彈會隨機爆炸！拿到炸彈快點別人頭像「甩鍋」，爆炸瞬間在誰手上誰受罰。</li>
                   <li><strong>🏎️ 動物狂點賽車：</strong>倒數 3、2、1 後瘋狂連點「⚡ 加速」，跑最後一名就是買單苦主！</li>
+                  <li><strong>🪜 小朋友下樓梯：</strong>點左／右移動，踩樓梯往下衝！掉下去或踩到刺就結束。可選「單人」練功，或「連線」比誰樓層最高。</li>
                 </ul>
               </article>
             </div>
@@ -2954,6 +3027,29 @@ img {
                 <p class="game-idle-copy" id="race-status">準備好就發起賽車吧！</p>
                 <button type="button" class="btn btn-primary" id="race-start">發起賽車</button>
                 <button type="button" class="btn btn-primary race-tap" id="race-tap" hidden>⚡ 狂點加速</button>
+              </div>
+            </div>
+
+            <div class="game-panel" data-game-panel="stairs" role="tabpanel" hidden>
+              <div class="stairs-mode" role="tablist" aria-label="下樓梯模式">
+                <button type="button" class="stairs-mode-btn is-active" data-stairs-mode="solo" aria-selected="true">單人</button>
+                <button type="button" class="stairs-mode-btn" data-stairs-mode="online" aria-selected="false">連線</button>
+              </div>
+              <div class="game-presence" data-presence-for="stairs"></div>
+              <p class="game-tip" id="stairs-tip">👉 單人模式：自己練下樓，挑戰最高樓層。</p>
+              <div class="card game-stage stairs-stage" id="stairs-stage">
+                <div class="stairs-hud">
+                  <span>樓層 <strong id="stairs-floor">0</strong></span>
+                  <span>最佳 <strong id="stairs-best">0</strong></span>
+                </div>
+                <canvas id="stairs-canvas" width="360" height="420" aria-label="小朋友下樓梯遊戲區"></canvas>
+                <div class="stairs-controls">
+                  <button type="button" class="btn btn-ghost stairs-dir" id="stairs-left" aria-label="向左">◀ 左</button>
+                  <button type="button" class="btn btn-ghost stairs-dir" id="stairs-right" aria-label="向右">右 ▶</button>
+                </div>
+                <p class="game-idle-copy" id="stairs-status">選模式後按開始下樓</p>
+                <button type="button" class="btn btn-primary" id="stairs-start">開始下樓</button>
+                <div class="game-result" id="stairs-result" hidden></div>
               </div>
             </div>
           </div>
@@ -4450,6 +4546,543 @@ window.TRIP_DATA = {
     sections.forEach((sec) => observer.observe(sec));
   }
 
+  // ---------- 小朋友下樓梯（單人可用；連線由共享層掛上） ----------
+  const STAIRS_BEST_KEY = "fk18-stairs-best";
+  const stairsApi = {
+    mode: "solo",
+    phase: "idle",
+    online: null, // set by shared layer
+    scores: {},
+    roundId: "",
+  };
+
+  function stairsEsc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function bindGameSubtabsMain() {
+    const tabs = document.querySelectorAll(".game-subtab");
+    const panels = document.querySelectorAll(".game-panel");
+    if (!tabs.length || tabs[0].dataset.bound === "1") return;
+    tabs.forEach((tab) => {
+      tab.dataset.bound = "1";
+      tab.addEventListener("click", () => {
+        const id = tab.getAttribute("data-game-tab");
+        tabs.forEach((t) => {
+          const on = t === tab;
+          t.classList.toggle("is-active", on);
+          t.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        panels.forEach((p) => {
+          const on = p.getAttribute("data-game-panel") === id;
+          p.classList.toggle("is-active", on);
+          p.hidden = !on;
+        });
+      });
+    });
+  }
+
+  function initStairsGame() {
+    const canvas = document.getElementById("stairs-canvas");
+    const startBtn = document.getElementById("stairs-start");
+    const resultEl = document.getElementById("stairs-result");
+    const statusEl = document.getElementById("stairs-status");
+    const floorEl = document.getElementById("stairs-floor");
+    const bestEl = document.getElementById("stairs-best");
+    const tipEl = document.getElementById("stairs-tip");
+    if (!canvas || !startBtn || canvas.dataset.bound === "1") return;
+    canvas.dataset.bound = "1";
+
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width;
+    const H = canvas.height;
+    let best = Number(localStorage.getItem(STAIRS_BEST_KEY) || 0) || 0;
+    if (bestEl) bestEl.textContent = String(best);
+
+    let raf = 0;
+    let moveDir = 0;
+    let holdLeft = false;
+    let holdRight = false;
+    let world = null;
+
+    function setTip() {
+      if (!tipEl) return;
+      if (stairsApi.mode === "solo") {
+        tipEl.textContent = "👉 單人模式：自己練下樓，挑戰最高樓層。";
+      } else if (stairsApi.online && stairsApi.online.ready()) {
+        tipEl.textContent = "👉 連線模式：任一人按開始，大家一起比誰樓層最高。";
+      } else {
+        tipEl.textContent = "👉 連線模式需用共享連結並選好身分。";
+      }
+    }
+
+    function setMode(mode) {
+      stairsApi.mode = mode === "online" ? "online" : "solo";
+      document.querySelectorAll("[data-stairs-mode]").forEach((btn) => {
+        const on = btn.getAttribute("data-stairs-mode") === stairsApi.mode;
+        btn.classList.toggle("is-active", on);
+        btn.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      setTip();
+      if (stairsApi.phase !== "playing") {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent =
+            stairsApi.mode === "online" ? "連線就緒後按開始下樓" : "選模式後按開始下樓";
+        }
+        if (resultEl) resultEl.hidden = true;
+        startBtn.hidden = false;
+        startBtn.textContent = "開始下樓";
+      }
+    }
+
+    document.querySelectorAll("[data-stairs-mode]").forEach((btn) => {
+      btn.addEventListener("click", () => setMode(btn.getAttribute("data-stairs-mode")));
+    });
+
+    function avatarFor(name) {
+      const map = { 阿瓜: "🦆", 阿萱: "🐤", 阿亭: "🐵", 茶米: "🐶" };
+      return map[name] || "🙂";
+    }
+
+    function newPlatform(y, floor) {
+      const w = 72 + Math.floor(Math.random() * 46);
+      const x = Math.floor(Math.random() * Math.max(1, W - w - 8)) + 4;
+      const spike = floor > 4 && Math.random() < Math.min(0.22, 0.08 + floor * 0.01);
+      return { x, y, w, h: 12, spike, floor };
+    }
+
+    function resetWorld() {
+      const platforms = [];
+      let y = 110;
+      for (let i = 0; i < 12; i++) {
+        platforms.push(newPlatform(y, i));
+        y += 50 + Math.floor(Math.random() * 16);
+      }
+      const first = platforms[0];
+      world = {
+        platforms,
+        px: first.x + first.w / 2,
+        py: first.y - 16,
+        pvy: 0,
+        floor: 0,
+        maxFloor: 0,
+        dead: false,
+        onGround: true,
+        cam: Math.max(0, first.y - H * 0.35),
+        tick: 0,
+      };
+      if (floorEl) floorEl.textContent = "0";
+    }
+
+    function draw() {
+      if (!world) return;
+      ctx.clearRect(0, 0, W, H);
+      // soft sky dots
+      ctx.fillStyle = "rgba(42,29,23,0.05)";
+      for (let i = 0; i < 18; i++) {
+        ctx.beginPath();
+        ctx.arc((i * 47) % W, (i * 73 + world.cam * 0.2) % H, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      world.platforms.forEach((p) => {
+        const y = p.y - world.cam;
+        if (y < -20 || y > H + 20) return;
+        ctx.fillStyle = p.spike ? "#c94b3a" : "#6b8f71";
+        ctx.strokeStyle = "#2a1d17";
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, p.x, y, p.w, p.h, 4);
+        ctx.fill();
+        ctx.stroke();
+        if (p.spike) {
+          ctx.fillStyle = "#2a1d17";
+          const n = Math.max(3, Math.floor(p.w / 14));
+          for (let i = 0; i < n; i++) {
+            const sx = p.x + ((i + 0.5) * p.w) / n;
+            ctx.beginPath();
+            ctx.moveTo(sx - 5, y);
+            ctx.lineTo(sx, y - 8);
+            ctx.lineTo(sx + 5, y);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+      });
+
+      const py = world.py - world.cam;
+      const me =
+        (stairsApi.online && stairsApi.online.member && stairsApi.online.member()) ||
+        "你";
+      const face = avatarFor(me);
+      ctx.font = "22px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(face, world.px, py);
+      if (world.dead) {
+        ctx.fillStyle = "rgba(224,69,44,0.9)";
+        ctx.font = "bold 20px sans-serif";
+        ctx.fillText("掉下去了！", W / 2, H / 2);
+      }
+    }
+
+    function roundRect(c, x, y, w, h, r) {
+      c.beginPath();
+      c.moveTo(x + r, y);
+      c.arcTo(x + w, y, x + w, y + h, r);
+      c.arcTo(x + w, y + h, x, y + h, r);
+      c.arcTo(x, y + h, x, y, r);
+      c.arcTo(x, y, x + w, y, r);
+      c.closePath();
+    }
+
+    function step() {
+      if (!world || world.dead) return;
+      world.tick++;
+      const speed = holdLeft || moveDir < 0 ? -3.2 : holdRight || moveDir > 0 ? 3.2 : 0;
+      world.px += speed;
+      if (world.px < 10) world.px = 10;
+      if (world.px > W - 10) world.px = W - 10;
+
+      world.pvy += 0.35;
+      if (world.pvy > 10) world.pvy = 10;
+      world.py += world.pvy;
+      world.onGround = false;
+
+      for (const p of world.platforms) {
+        if (p.used) continue;
+        const withinX = world.px > p.x - 2 && world.px < p.x + p.w + 2;
+        const feet = world.py + 10;
+        if (
+          withinX &&
+          world.pvy >= 0 &&
+          feet >= p.y &&
+          feet <= p.y + p.h + 10 &&
+          world.py < p.y + 6
+        ) {
+          if (p.spike) {
+            die("踩到刺了");
+            return;
+          }
+          // 踩到後短暫站穩再往下掉（經典下樓梯手感）
+          world.py = p.y - 10;
+          world.pvy = 2.4;
+          world.onGround = true;
+          p.used = true;
+          if (p.floor > world.maxFloor) {
+            world.maxFloor = p.floor;
+            world.floor = p.floor;
+            if (floorEl) floorEl.textContent = String(world.floor);
+            broadcastProgress();
+          }
+        }
+      }
+
+      // generate more stairs below; drop ones far above
+      let guard = 0;
+      while (
+        world.platforms.length &&
+        world.py > Math.max(...world.platforms.map((p) => p.y)) - 160 &&
+        guard++ < 6
+      ) {
+        const nextFloor = Math.max(...world.platforms.map((p) => p.floor)) + 1;
+        const ny =
+          Math.max(...world.platforms.map((p) => p.y)) +
+          50 +
+          Math.floor(Math.random() * 16);
+        world.platforms.push(newPlatform(ny, nextFloor));
+      }
+      world.platforms = world.platforms.filter((p) => p.y > world.cam - 60);
+
+      // camera follows player downward
+      const targetCam = world.py - H * 0.38;
+      if (targetCam > world.cam) world.cam += (targetCam - world.cam) * 0.14;
+
+      if (world.py - world.cam > H + 40) {
+        die("掉出畫面");
+        return;
+      }
+      draw();
+    }
+
+    function loop() {
+      step();
+      if (stairsApi.phase === "playing" && world && !world.dead) {
+        raf = requestAnimationFrame(loop);
+      }
+    }
+
+    function broadcastProgress() {
+      if (stairsApi.mode !== "online" || !stairsApi.online || !stairsApi.online.ready()) return;
+      const me = stairsApi.online.member();
+      if (!me) return;
+      stairsApi.scores[me] = {
+        floor: world ? world.maxFloor : 0,
+        dead: !!(world && world.dead),
+        at: Date.now(),
+      };
+      stairsApi.online.send({
+        phase: "playing",
+        roundId: stairsApi.roundId,
+        scores: stairsApi.scores,
+      });
+    }
+
+    function showSoloResult() {
+      const floor = world ? world.maxFloor : 0;
+      if (floor > best) {
+        best = floor;
+        try {
+          localStorage.setItem(STAIRS_BEST_KEY, String(best));
+        } catch (e) {
+          /* ignore */
+        }
+        if (bestEl) bestEl.textContent = String(best);
+      }
+      if (statusEl) statusEl.hidden = true;
+      startBtn.hidden = true;
+      if (resultEl) {
+        resultEl.hidden = false;
+        resultEl.innerHTML = `
+          <p class="game-result-title">🪜 下到第 ${floor} 樓</p>
+          <p class="game-result-sub">最佳紀錄：${best} 樓</p>
+          <button type="button" class="btn btn-primary" id="stairs-again">再玩一次</button>`;
+        resultEl.querySelector("#stairs-again").addEventListener("click", () => startLocal());
+      }
+    }
+
+    function showOnlineBoard() {
+      const entries = Object.entries(stairsApi.scores || {})
+        .map(([name, s]) => ({ name, floor: Number(s.floor) || 0, dead: !!s.dead }))
+        .sort((a, b) => b.floor - a.floor);
+      if (!entries.length) return;
+      const winner = entries[0];
+      const board = entries
+        .map(
+          (e, i) =>
+            `<li class="${i === 0 ? "is-winner" : ""}"><span>${i + 1}. ${avatarFor(
+              e.name
+            )} ${stairsEsc(e.name)}</span><span>${e.floor} 樓${
+              i === 0 ? " 🥇" : ""
+            }</span></li>`
+        )
+        .join("");
+      if (statusEl) statusEl.hidden = true;
+      startBtn.hidden = true;
+      if (resultEl) {
+        resultEl.hidden = false;
+        resultEl.innerHTML = `
+          <div class="race-winner" role="status">
+            <p class="race-winner-label">🏆 Winner</p>
+            <div class="race-winner-avatar">${avatarFor(winner.name)}</div>
+            <p class="race-winner-name">${stairsEsc(winner.name)}</p>
+            <p class="race-winner-sub">${winner.floor} 樓最高！</p>
+          </div>
+          <ul class="race-board">${board}</ul>
+          <button type="button" class="btn btn-primary" id="stairs-again">再比一場</button>`;
+        resultEl.querySelector("#stairs-again").addEventListener("click", () => {
+          if (stairsApi.online && stairsApi.online.ready()) {
+            requestOnlineStart();
+          } else startLocal();
+        });
+      }
+    }
+
+    function maybeFinishOnline() {
+      if (stairsApi.mode !== "online") return;
+      const online = (stairsApi.online && stairsApi.online.players()) || [];
+      const names = online.length ? online : Object.keys(stairsApi.scores);
+      if (!names.length) return;
+      const allDead = names.every((n) => stairsApi.scores[n] && stairsApi.scores[n].dead);
+      if (!allDead) return;
+      stairsApi.phase = "done";
+      showOnlineBoard();
+      if (stairsApi.online && stairsApi.online.ready()) {
+        stairsApi.online.send({
+          phase: "done",
+          roundId: stairsApi.roundId,
+          scores: stairsApi.scores,
+        });
+      }
+    }
+
+    function die() {
+      if (!world || world.dead) return;
+      world.dead = true;
+      stairsApi.phase = "dead";
+      cancelAnimationFrame(raf);
+      draw();
+      broadcastProgress();
+      if (stairsApi.mode === "solo") {
+        showSoloResult();
+      } else {
+        const me = stairsApi.online && stairsApi.online.member();
+        if (me) {
+          stairsApi.scores[me] = {
+            floor: world.maxFloor,
+            dead: true,
+            at: Date.now(),
+          };
+        }
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent = `你到 ${world.maxFloor} 樓，等其他人…`;
+        }
+        startBtn.hidden = true;
+        maybeFinishOnline();
+        // if only one player, finish immediately
+        const players = (stairsApi.online && stairsApi.online.players()) || [];
+        if (players.length <= 1) {
+          stairsApi.phase = "done";
+          showOnlineBoard();
+        }
+      }
+    }
+
+    function startLocal(roundId) {
+      cancelAnimationFrame(raf);
+      stairsApi.phase = "playing";
+      stairsApi.roundId = roundId || `solo-${Date.now().toString(36)}`;
+      if (stairsApi.mode === "solo") stairsApi.scores = {};
+      resetWorld();
+      if (resultEl) resultEl.hidden = true;
+      if (statusEl) {
+        statusEl.hidden = false;
+        statusEl.textContent = "往下跳！點左／右移動";
+      }
+      startBtn.hidden = true;
+      draw();
+      raf = requestAnimationFrame(loop);
+      broadcastProgress();
+    }
+
+    function requestOnlineStart() {
+      if (!stairsApi.online || !stairsApi.online.ready()) {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent = "尚未共享連線，請改單人或打開共享連結";
+        }
+        return;
+      }
+      const roundId = `st-${Date.now().toString(36)}-${Math.random()
+        .toString(36)
+        .slice(2, 6)}`;
+      const players = stairsApi.online.players();
+      const scores = {};
+      (players.length ? players : [stairsApi.online.member()].filter(Boolean)).forEach(
+        (n) => {
+          scores[n] = { floor: 0, dead: false, at: Date.now() };
+        }
+      );
+      stairsApi.scores = scores;
+      stairsApi.online.send({ phase: "start", roundId, scores });
+      startLocal(roundId);
+    }
+
+    startBtn.addEventListener("click", () => {
+      if (stairsApi.mode === "online") requestOnlineStart();
+      else startLocal();
+    });
+
+    function setHold(dir, on) {
+      if (dir < 0) holdLeft = on;
+      if (dir > 0) holdRight = on;
+      moveDir = holdLeft && !holdRight ? -1 : holdRight && !holdLeft ? 1 : 0;
+    }
+
+    const leftBtn = document.getElementById("stairs-left");
+    const rightBtn = document.getElementById("stairs-right");
+    [
+      [leftBtn, -1],
+      [rightBtn, 1],
+    ].forEach(([btn, dir]) => {
+      if (!btn) return;
+      const down = (e) => {
+        e.preventDefault();
+        setHold(dir, true);
+      };
+      const up = (e) => {
+        e.preventDefault();
+        setHold(dir, false);
+      };
+      btn.addEventListener("pointerdown", down);
+      btn.addEventListener("pointerup", up);
+      btn.addEventListener("pointerleave", up);
+      btn.addEventListener("pointercancel", up);
+    });
+
+    canvas.addEventListener(
+      "pointerdown",
+      (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        setHold(x < rect.width / 2 ? -1 : 1, true);
+      },
+      { passive: true }
+    );
+    const clearHold = () => {
+      holdLeft = false;
+      holdRight = false;
+      moveDir = 0;
+    };
+    canvas.addEventListener("pointerup", clearHold);
+    canvas.addEventListener("pointercancel", clearHold);
+    canvas.addEventListener("pointerleave", clearHold);
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "a") setHold(-1, true);
+      if (e.key === "ArrowRight" || e.key === "d") setHold(1, true);
+    });
+    window.addEventListener("keyup", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "a") setHold(-1, false);
+      if (e.key === "ArrowRight" || e.key === "d") setHold(1, false);
+    });
+
+    // idle preview frame
+    resetWorld();
+    draw();
+    setMode("solo");
+
+    window.__tripStairs = {
+      applyRemote(payload) {
+        if (!payload || payload.kind !== "stairs") return;
+        if (payload.phase === "start") {
+          stairsApi.mode = "online";
+          setMode("online");
+          stairsApi.scores = payload.scores || {};
+          startLocal(payload.roundId);
+          return;
+        }
+        if (payload.phase === "playing") {
+          if (payload.roundId && payload.roundId !== stairsApi.roundId) return;
+          stairsApi.scores = { ...stairsApi.scores, ...(payload.scores || {}) };
+          maybeFinishOnline();
+          return;
+        }
+        if (payload.phase === "done") {
+          stairsApi.scores = { ...stairsApi.scores, ...(payload.scores || {}) };
+          stairsApi.phase = "done";
+          cancelAnimationFrame(raf);
+          showOnlineBoard();
+        }
+      },
+      setOnline(api) {
+        stairsApi.online = api;
+        setTip();
+      },
+      refreshTip: setTip,
+    };
+  }
+
+  function bindGamesShell() {
+    bindGameSubtabsMain();
+    initStairsGame();
+  }
+
   function init() {
     renderHero();
     renderFlights();
@@ -4462,6 +5095,7 @@ window.TRIP_DATA = {
     bindJumpToday();
     bindNavActive();
     decorateCardStickers();
+    bindGamesShell();
   }
 
   if (document.readyState === "loading") {
@@ -5887,13 +6521,24 @@ window.TRIP_DATA = {
         raceLocalProgress = Number((payload.progress || {})[getMember()] || 0);
         renderRace();
       }
+      return;
+    }
+    if (payload.kind === "stairs") {
+      if (window.__tripStairs && typeof window.__tripStairs.applyRemote === "function") {
+        window.__tripStairs.applyRemote(payload);
+      }
     }
   }
 
   function bindGameSubtabs() {
+    // subtabs already bound in main shell; keep as no-op if present
+    if (document.querySelector(".game-subtab[data-bound='1'], .game-subtab[data-bound=\"1\"]")) {
+      return;
+    }
     const tabs = document.querySelectorAll(".game-subtab");
     const panels = document.querySelectorAll(".game-panel");
     tabs.forEach((tab) => {
+      tab.dataset.bound = "1";
       tab.addEventListener("click", () => {
         const id = tab.getAttribute("data-game-tab");
         tabs.forEach((t) => {
@@ -5910,6 +6555,24 @@ window.TRIP_DATA = {
     });
   }
 
+  function wireStairsOnline() {
+    if (!window.__tripStairs || !window.__tripStairs.setOnline) return;
+    window.__tripStairs.setOnline({
+      ready: () => !!gameChannel,
+      member: () => getMember(),
+      players: () => {
+        const all = memberList();
+        const online = all.filter((n) => onlineMembers.has(n));
+        const me = getMember();
+        const set = new Set(online);
+        if (me) set.add(me);
+        return all.filter((n) => set.has(n));
+      },
+      send: (payload) => sendGame({ kind: "stairs", ...payload }),
+    });
+    window.__tripStairs.refreshTip && window.__tripStairs.refreshTip();
+  }
+
   function bindGames() {
     const section = document.getElementById("games");
     if (!section) return;
@@ -5923,6 +6586,7 @@ window.TRIP_DATA = {
     renderBomb();
     renderRace();
     paintGamePresence();
+    wireStairsOnline();
 
     const gamesEl = document.getElementById("games");
     if (gamesEl && "IntersectionObserver" in window) {
