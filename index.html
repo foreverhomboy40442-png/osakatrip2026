@@ -3115,7 +3115,7 @@ img {
                 <ul class="game-rules">
                   <li><strong>🧨 限時傳炸彈：</strong>炸彈會隨機爆炸！拿到炸彈快點別人頭像「甩鍋」，爆炸瞬間在誰手上誰受罰。</li>
                   <li><strong>🏎️ 動物狂點賽車：</strong>倒數 3、2、1 後瘋狂連點「⚡ 加速」，跑最後一名就是買單苦主！</li>
-                  <li><strong>🪜 小朋友下樓梯：</strong>踩到會站穩，走到邊緣才下樓；上方會擠、掉出框底也出局。每 10 階加快，之後階梯會變短並左右移動。可選「單人」或「連線」。</li>
+                  <li><strong>🪜 小朋友下樓梯：</strong>踩到會站穩，走到邊緣才下樓；上方會擠、掉出框底也出局。底部有京都妖怪時不時伸手抓人；越高越難，畫面會閃爍、出現懷舊破裂。可選「單人」或「連線」。</li>
                 </ul>
               </article>
             </div>
@@ -4955,8 +4955,144 @@ window.TRIP_DATA = {
         ground: first,
         cam: Math.max(0, first.y - H * 0.35),
         tick: 0,
+        yokai: {
+          phase: "idle",
+          t: 0,
+          handX: W * 0.5,
+          reach: 0,
+          nextAt: 260 + Math.floor(Math.random() * 120),
+        },
+        fx: {
+          flicker: 0,
+          crackUntil: 0,
+          crackSeed: 1,
+          flash: 0,
+        },
       };
       if (floorEl) floorEl.textContent = "0";
+    }
+
+    function drawYokai(handReach) {
+      // 底部深淵＋京都鬼面
+      const pitTop = H - 52;
+      const grad = ctx.createLinearGradient(0, pitTop, 0, H);
+      grad.addColorStop(0, "rgba(20,8,12,0)");
+      grad.addColorStop(0.35, "rgba(28,6,10,0.55)");
+      grad.addColorStop(1, "rgba(12,2,4,0.95)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, pitTop, W, H - pitTop);
+
+      const faceY = H - 8;
+      const faceX = W * 0.5;
+      // 鬼角
+      ctx.fillStyle = "#2a1210";
+      ctx.beginPath();
+      ctx.moveTo(faceX - 38, faceY - 10);
+      ctx.lineTo(faceX - 52, faceY - 38);
+      ctx.lineTo(faceX - 22, faceY - 18);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(faceX + 38, faceY - 10);
+      ctx.lineTo(faceX + 52, faceY - 38);
+      ctx.lineTo(faceX + 22, faceY - 18);
+      ctx.closePath();
+      ctx.fill();
+      // 鬼臉
+      ctx.fillStyle = "#6b1f1a";
+      ctx.beginPath();
+      ctx.ellipse(faceX, faceY + 6, 48, 28, 0, Math.PI, 0);
+      ctx.fill();
+      ctx.fillStyle = "#f0e6c8";
+      ctx.beginPath();
+      ctx.ellipse(faceX - 16, faceY - 4, 7, 5, -0.2, 0, Math.PI * 2);
+      ctx.ellipse(faceX + 16, faceY - 4, 7, 5, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#1a0505";
+      ctx.beginPath();
+      ctx.arc(faceX - 16, faceY - 3, 2.4, 0, Math.PI * 2);
+      ctx.arc(faceX + 16, faceY - 3, 2.4, 0, Math.PI * 2);
+      ctx.fill();
+      // 張嘴
+      ctx.fillStyle = "#120303";
+      ctx.beginPath();
+      ctx.ellipse(faceX, faceY + 10, 18, 10 + handReach * 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#e8d9a8";
+      for (let i = -2; i <= 2; i++) {
+        const tx = faceX + i * 7;
+        ctx.beginPath();
+        ctx.moveTo(tx - 2.5, faceY + 4);
+        ctx.lineTo(tx, faceY + 1);
+        ctx.lineTo(tx + 2.5, faceY + 4);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      if (handReach <= 0.02) return;
+
+      const hx = world.yokai.handX;
+      const tipY = H - 20 - handReach * (H * 0.55);
+      // 妖手臂
+      ctx.strokeStyle = "#5a2a28";
+      ctx.lineWidth = 16;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(faceX, faceY);
+      ctx.quadraticCurveTo(faceX + (hx - faceX) * 0.3, tipY + 80, hx, tipY + 28);
+      ctx.stroke();
+      ctx.strokeStyle = "#8b3d38";
+      ctx.lineWidth = 11;
+      ctx.stroke();
+      // 手掌
+      ctx.fillStyle = "#9a4a42";
+      ctx.beginPath();
+      ctx.ellipse(hx, tipY + 8, 22, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // 五指往上抓
+      ctx.strokeStyle = "#7a3530";
+      ctx.lineWidth = 5;
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.moveTo(hx + i * 7, tipY + 4);
+        ctx.quadraticCurveTo(hx + i * 10, tipY - 10 - Math.abs(i), hx + i * 6, tipY - 22);
+        ctx.stroke();
+      }
+      // 爪
+      ctx.strokeStyle = "#e8d9a8";
+      ctx.lineWidth = 2;
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.moveTo(hx + i * 6, tipY - 20);
+        ctx.lineTo(hx + i * 5.5, tipY - 28);
+        ctx.stroke();
+      }
+    }
+
+    function drawCracks(seed) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,245,220,0.55)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      const cx = W * (0.3 + ((seed * 17) % 40) / 100);
+      const cy = H * (0.25 + ((seed * 29) % 45) / 100);
+      ctx.moveTo(cx, cy);
+      for (let i = 0; i < 7; i++) {
+        const ang = ((seed * 13 + i * 47) % 360) * (Math.PI / 180);
+        const len = 28 + ((seed * 7 + i * 19) % 50);
+        ctx.lineTo(cx + Math.cos(ang) * len, cy + Math.sin(ang) * len);
+        ctx.moveTo(cx, cy);
+      }
+      // 再加幾道橫裂
+      ctx.moveTo(10, H * 0.4);
+      ctx.lineTo(W * 0.45, H * 0.38 + (seed % 12));
+      ctx.lineTo(W * 0.7, H * 0.55);
+      ctx.lineTo(W - 8, H * 0.5);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(20,8,8,0.35)";
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+      ctx.restore();
     }
 
     function draw() {
@@ -5016,6 +5152,32 @@ window.TRIP_DATA = {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(face, world.px, py);
+
+      // 底部京都妖怪（手會伸上來）
+      drawYokai(world.yokai ? world.yokai.reach : 0);
+
+      // 懷舊破裂／燈光閃爍（越難越常）
+      if (world.fx) {
+        if (world.tick < world.fx.crackUntil) {
+          drawCracks(world.fx.crackSeed);
+          ctx.fillStyle = "rgba(255,250,230,0.06)";
+          ctx.fillRect(0, 0, W, H);
+        }
+        if (world.fx.flicker > 0) {
+          const pulse = 0.12 + 0.2 * Math.abs(Math.sin(world.tick * 0.55));
+          ctx.fillStyle = `rgba(0,0,0,${pulse})`;
+          ctx.fillRect(0, 0, W, H);
+          if (world.tick % 3 === 0) {
+            ctx.fillStyle = "rgba(255,240,210,0.1)";
+            ctx.fillRect(0, 0, W, H);
+          }
+        }
+        if (world.fx.flash > 0) {
+          ctx.fillStyle = `rgba(255,250,235,${Math.min(0.55, world.fx.flash)})`;
+          ctx.fillRect(0, 0, W, H);
+        }
+      }
+
       if (world.dead) {
         ctx.fillStyle = "rgba(224,69,44,0.9)";
         ctx.font = "bold 20px sans-serif";
@@ -5043,9 +5205,11 @@ window.TRIP_DATA = {
       if (nextStep > prevStep && statusEl && stairsApi.phase === "playing") {
         statusEl.hidden = false;
         statusEl.textContent =
-          nextStep >= 1
-            ? `平安過 ${nextStep * 10} 階！加快了，階梯開始左右移動`
-            : `平安過 ${nextStep * 10} 階！速度加快一點`;
+          nextStep >= 2
+            ? `平安過 ${nextStep * 10} 階！畫面開始閃爍破裂，妖怪更躁了`
+            : nextStep >= 1
+              ? `平安過 ${nextStep * 10} 階！加快了，階梯開始左右移動`
+              : `平安過 ${nextStep * 10} 階！速度加快一點`;
       }
       broadcastProgress();
     }
@@ -5192,7 +5356,90 @@ window.TRIP_DATA = {
         die("掉出框外！");
         return;
       }
+
+      // —— 京都妖怪伸手／吃人 ——
+      updateYokai(diff);
+      if (world.dead) return;
+
+      // —— 懷舊破裂／燈光閃爍（關卡越高越常）——
+      updateHorrorFx(diff);
+
       draw();
+    }
+
+    function updateYokai(diff) {
+      const yk = world.yokai;
+      if (!yk) return;
+      const screenY = world.py - world.cam;
+      // 前期只嚇到中下；越高伸得越上、越快
+      const maxReach = 0.38 + Math.min(0.45, diff.steps * 0.07);
+
+      if (yk.phase === "idle") {
+        yk.reach = Math.max(0, yk.reach - 0.04);
+        if (world.tick >= yk.nextAt) {
+          yk.phase = "rising";
+          yk.t = 0;
+          // 朝玩家目前水平位置探爪，略帶預判
+          yk.handX = Math.max(28, Math.min(W - 28, world.px + moveDir * 18));
+          if (statusEl && stairsApi.phase === "playing" && Math.random() < 0.6) {
+            statusEl.hidden = false;
+            statusEl.textContent = "小心！京都妖怪伸手上來了…";
+          }
+        }
+        return;
+      }
+
+      if (yk.phase === "rising") {
+        yk.t++;
+        const riseSpeed = 0.022 + diff.steps * 0.005;
+        yk.reach = Math.min(maxReach, yk.reach + riseSpeed);
+        // 緩緩追玩家 x（越高追越緊）
+        yk.handX += (world.px - yk.handX) * (0.03 + diff.steps * 0.01);
+        const tipY = H - 20 - yk.reach * (H * 0.55);
+        const nearX = Math.abs(yk.handX - world.px) < 22 + diff.steps;
+        const nearY = screenY > tipY - 14 && screenY < tipY + 30;
+        // 只在手伸夠高、人又偏畫面下方時才吃得到
+        if (yk.reach > maxReach * 0.72 && screenY > H * 0.48 && nearX && nearY) {
+          die("被京都妖怪吃掉了！");
+          return;
+        }
+        if (yk.reach >= maxReach - 0.001 || yk.t > 55 + diff.steps * 5) {
+          yk.phase = "retreat";
+          yk.t = 0;
+        }
+        return;
+      }
+
+      if (yk.phase === "retreat") {
+        yk.t++;
+        yk.reach = Math.max(0, yk.reach - (0.05 + diff.steps * 0.004));
+        if (yk.reach <= 0) {
+          yk.phase = "idle";
+          yk.reach = 0;
+          // 越高越常伸手
+          const gap = Math.max(60, 220 - diff.steps * 22 - Math.floor(Math.random() * 50));
+          yk.nextAt = world.tick + gap;
+        }
+      }
+    }
+
+    function updateHorrorFx(diff) {
+      const fx = world.fx;
+      if (!fx) return;
+      if (fx.flash > 0) fx.flash = Math.max(0, fx.flash - 0.05);
+      if (fx.flicker > 0) fx.flicker--;
+
+      // 從第 10 階起偶爾閃燈；更高更頻繁
+      if (diff.steps >= 1 && fx.flicker <= 0 && Math.random() < 0.01 + diff.steps * 0.006) {
+        fx.flicker = 18 + Math.floor(Math.random() * 22) + diff.steps * 4;
+        fx.flash = 0.35 + Math.random() * 0.25;
+      }
+      // 懷舊玻璃／膠卷破裂感
+      if (diff.steps >= 2 && world.tick >= fx.crackUntil && Math.random() < 0.008 + diff.steps * 0.005) {
+        fx.crackUntil = world.tick + 40 + Math.floor(Math.random() * 50);
+        fx.crackSeed = (fx.crackSeed * 17 + world.tick + 13) % 997;
+        fx.flash = Math.max(fx.flash, 0.28);
+      }
     }
 
     function loop() {
@@ -5339,7 +5586,8 @@ window.TRIP_DATA = {
       if (resultEl) resultEl.hidden = true;
       if (statusEl) {
         statusEl.hidden = false;
-        statusEl.textContent = "走到邊緣才下樓；掉出框底也出局；每 10 階加快、階梯會左右移！";
+        statusEl.textContent =
+          "走到邊緣才下樓；底部妖怪會伸手！越高越閃、會破裂；掉出框底也出局";
       }
       startBtn.hidden = true;
       draw();
