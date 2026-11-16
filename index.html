@@ -3042,7 +3042,7 @@ img {
                 <ul class="game-rules">
                   <li><strong>🧨 限時傳炸彈：</strong>炸彈會隨機爆炸！拿到炸彈快點別人頭像「甩鍋」，爆炸瞬間在誰手上誰受罰。</li>
                   <li><strong>🏎️ 動物狂點賽車：</strong>倒數 3、2、1 後瘋狂連點「⚡ 加速」，跑最後一名就是買單苦主！</li>
-                  <li><strong>🪜 小朋友下樓梯：</strong>踩到會站穩，左右走到邊緣才下樓；上方會往下擠，待太久出局。平安越久速度會緩慢加快。可選「單人」或「連線」。</li>
+                  <li><strong>🪜 小朋友下樓梯：</strong>踩到會站穩，左右走到邊緣才下樓；上方會往下擠，待太久出局。每平安過 10 階速度加快一點。可選「單人」或「連線」。</li>
                 </ul>
               </article>
             </div>
@@ -4840,27 +4840,31 @@ window.TRIP_DATA = {
 
     function markFloor(p) {
       if (!p || p.floor <= world.maxFloor) return;
+      const prevStep = Math.floor(world.maxFloor / 10);
       world.maxFloor = p.floor;
       world.floor = p.floor;
       if (floorEl) floorEl.textContent = String(world.floor);
+      const nextStep = Math.floor(world.maxFloor / 10);
+      if (nextStep > prevStep && statusEl && stairsApi.phase === "playing") {
+        statusEl.hidden = false;
+        statusEl.textContent = `平安過 ${nextStep * 10} 階！速度加快一點`;
+      }
       broadcastProgress();
     }
 
-    // 平安存活越久／樓層越高，緩慢加快（有上限）
+    // 每平安度過 10 階加快一點（有上限）
     function difficulty() {
       const floor = world ? world.maxFloor || 0 : 0;
-      const t = world ? world.tick || 0 : 0;
-      const fromFloor = Math.min(1, floor / 40);
-      const fromTime = Math.min(0.35, t / 3600);
-      const level = Math.min(1, fromFloor * 0.85 + fromTime * 0.35);
+      const steps = Math.min(8, Math.floor(floor / 10)); // 0→10→20…最多 8 段
       return {
-        level,
-        move: 2.05 + level * 0.95,
-        gravity: 0.15 + level * 0.1,
-        maxFall: 4.5 + level * 2.2,
-        stepOff: 0.55 + level * 0.35,
-        pressure: 0.4 + level * 1.15,
-        gap: Math.max(54, Math.round(70 - level * 12)),
+        level: steps / 8,
+        steps,
+        move: 2.05 + steps * 0.12,
+        gravity: 0.15 + steps * 0.012,
+        maxFall: 4.5 + steps * 0.28,
+        stepOff: 0.55 + steps * 0.045,
+        pressure: 0.4 + steps * 0.14,
+        gap: Math.max(54, Math.round(70 - steps * 1.6)),
       };
     }
 
@@ -5100,7 +5104,7 @@ window.TRIP_DATA = {
       if (resultEl) resultEl.hidden = true;
       if (statusEl) {
         statusEl.hidden = false;
-        statusEl.textContent = "踩到會站穩；上方會擠；越玩越快，快左右下樓！";
+        statusEl.textContent = "踩到會站穩；上方會擠；每 10 階加快一點！";
       }
       startBtn.hidden = true;
       draw();
