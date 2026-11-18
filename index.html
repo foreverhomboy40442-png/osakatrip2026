@@ -3134,7 +3134,7 @@ img {
                 <ul class="game-rules">
                   <li><strong>🧨 限時傳炸彈：</strong>炸彈會隨機爆炸！拿到炸彈快點別人頭像「甩鍋」，爆炸瞬間在誰手上誰受罰。</li>
                   <li><strong>🏎️ 動物狂點賽車：</strong>倒數 3、2、1 後瘋狂連點「⚡ 加速」，跑最後一名就是買單苦主！</li>
-                  <li><strong>🪜 小朋友下樓梯：</strong>踩到階梯會站穩，走到邊緣才下樓；沒踩到就會往下掉，碰到框底地板即出局。上方會擠；底部妖怪時不時伸手。越高越難、畫面會閃爍破裂。可選「單人」或「連線」。</li>
+                  <li><strong>🪜 小朋友下樓梯：</strong>踩到階梯會站穩，走到邊緣才下樓；沒踩到就會往下掉，碰到框底地板即出局。速度隨樓層平穩加快（不忽快忽慢）。上方會擠；底部妖怪時不時伸手。可選「單人」或「連線」。</li>
                 </ul>
               </article>
             </div>
@@ -5274,27 +5274,31 @@ window.TRIP_DATA = {
         statusEl.hidden = false;
         statusEl.textContent =
           nextStep >= 2
-            ? `平安過 ${nextStep * 10} 階！畫面開始閃爍破裂，妖怪更躁了`
+            ? `過 ${nextStep * 10} 階！速度更穩更快，畫面開始閃爍破裂`
             : nextStep >= 1
-              ? `平安過 ${nextStep * 10} 階！加快了，階梯開始左右移動`
-              : `平安過 ${nextStep * 10} 階！速度加快一點`;
+              ? `過 ${nextStep * 10} 階！速度加快，階梯開始左右移動`
+              : `過 ${nextStep * 10} 階！速度慢慢加快中`;
       }
       broadcastProgress();
     }
 
-    // 每平安度過 10 階加快一點（有上限）；後期階梯也會左右移動
+    // 速度隨樓層平滑加快（不跳段），站階／落空視覺速率盡量一致
     function difficulty() {
       const floor = world ? world.maxFloor || 0 : 0;
-      const steps = Math.min(8, Math.floor(floor / 10)); // 0→10→20…最多 8 段
+      const steps = Math.min(8, Math.floor(floor / 10)); // 關卡機制仍每 10 階一段
+      const t = Math.min(80, Math.max(0, floor)); // 0→80 平滑
+      const scroll = 1.05 + t * 0.026; // 約 1.05 → 3.13
       return {
-        level: steps / 8,
+        level: t / 80,
         steps,
-        move: 2.85 + steps * 0.26,
-        gravity: 0.28 + steps * 0.025,
-        maxFall: 7.2 + steps * 0.4,
-        stepOff: 0.9 + steps * 0.06,
-        pressure: 0.5 + steps * 0.2,
-        gap: Math.max(52, Math.round(68 - steps * 1.8)),
+        move: 2.55 + t * 0.028,
+        gravity: 0.34 + t * 0.0035,
+        // 終端下落 ≈ 2*scroll，相對畫面速率約等於 scroll（與站在階上捲動感一致）
+        maxFall: scroll * 2,
+        stepOff: Math.min(scroll * 0.55, 0.7 + t * 0.012),
+        scroll,
+        pressure: scroll,
+        gap: Math.max(50, Math.round(68 - t * 0.16)),
       };
     }
 
@@ -5423,13 +5427,14 @@ window.TRIP_DATA = {
       }
       world.platforms = world.platforms.filter((p) => p.y > world.cam - 60);
 
-      // 鏡頭：緩緩下壓；只有「站在階梯上」時才跟著往下對齊
-      // 沒踩到階梯時鏡頭不追人 → 角色會依重力掉向框底，碰到地板就死
-      world.cam += diff.pressure;
+      // 鏡頭用同一 scroll 速度下壓；站在階上只做「小幅」對齊，避免落地瞬間暴衝
+      // 落空時不追人 → 依重力掉向框底
+      world.cam += diff.scroll;
       if (world.onGround) {
-        const followCam = world.py - H * 0.42;
-        if (followCam > world.cam) {
-          world.cam += (followCam - world.cam) * 0.2;
+        const desiredCam = world.py - H * 0.42;
+        const delta = desiredCam - world.cam;
+        if (delta > 0) {
+          world.cam += Math.min(delta, diff.scroll * 0.35);
         }
       }
 
@@ -5676,7 +5681,7 @@ window.TRIP_DATA = {
       if (statusEl) {
         statusEl.hidden = false;
         statusEl.textContent =
-          "沒踩到階梯會往下掉，碰到框底地板就出局！";
+          "速度隨樓層平穩加快；沒踩到階梯會往下掉，碰地板出局";
       }
       startBtn.hidden = true;
       draw();
