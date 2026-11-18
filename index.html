@@ -3014,7 +3014,6 @@ img {
         <section class="section" id="flights">
           <div class="section-head">
             <h2>航班資訊</h2>
-            <p>登機證造型整理去回程時刻，方便對齊機場交通</p>
           </div>
           <div class="stack" id="flights-root"></div>
         </section>
@@ -3022,7 +3021,6 @@ img {
         <section class="section" id="hotels">
           <div class="section-head">
             <h2>住宿資訊</h2>
-            <p>三晚不同據點，點連結可開 Google Maps</p>
           </div>
           <div class="stack" id="hotels-root"></div>
         </section>
@@ -3030,8 +3028,6 @@ img {
         <section class="section" id="board">
           <div class="section-head">
             <h2>留言板</h2>
-            <p class="board-hint-personal">需用「共享連結」開啟，四人才能一起即時留言。</p>
-            <p class="board-hint-shared" hidden>大家即時交流，訊息會同步給所有人。</p>
           </div>
           <div class="board-wrap" hidden>
             <ul class="board-list" id="board-list"></ul>
@@ -3059,7 +3055,6 @@ img {
         <section class="section" id="itinerary">
           <div class="section-head">
             <h2>每日行程</h2>
-            <p>時間軸一覽；旅途中會自動標示今天。Day 4 為自由日，選項在該分頁內。</p>
           </div>
           <div class="day-tabs" id="day-tabs" role="tablist" aria-label="選擇日期"></div>
           <div id="days-root"></div>
@@ -3068,7 +3063,6 @@ img {
         <section class="section" id="transport">
           <div class="section-head">
             <h2>交通速查</h2>
-            <p>這趟會反覆用到的 Google 路線，可直接在網頁上看地圖</p>
           </div>
           <div class="stack" id="transport-root"></div>
         </section>
@@ -3076,7 +3070,6 @@ img {
         <section class="section" id="expense">
           <div class="section-head">
             <h2>個人記帳</h2>
-            <p>記錄這趟花費，資料存在你自己的裝置</p>
           </div>
           <form class="expense-form" id="expense-form" novalidate>
             <div class="expense-row expense-row--main">
@@ -3108,7 +3101,6 @@ img {
         <section class="section" id="games">
           <div class="section-head">
             <h2>打發遊戲</h2>
-            <p>四人同步小遊戲，等車／排隊時一起玩</p>
           </div>
           <p class="games-hint-personal">「小朋友下樓梯」可單人先玩；炸彈／賽車／連線模式需用共享連結。</p>
           <p class="games-hint-shared" hidden>看到上方綠燈「共享已連線」後，切子頁籤就能連線開玩。</p>
@@ -3196,7 +3188,6 @@ img {
         <section class="section" id="notes">
           <div class="section-head">
             <h2>行前／行中備忘</h2>
-            <p>預約編號、集合地點、想吃名單……隨手記</p>
           </div>
           <textarea
             class="notes-area"
@@ -6094,9 +6085,7 @@ window.TRIP_DATA = {
     const head = document.querySelector("#expense .section-head");
     if (head) {
       const h = head.querySelector("h2");
-      const p = head.querySelector("p");
       if (h) h.textContent = "共享記帳";
-      if (p) p.textContent = "你只會記在自己帳上，可切分頁查看其他人";
     }
     const form = document.getElementById("expense-form");
     if (form && !document.getElementById("exp-who-hint")) {
