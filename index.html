@@ -3253,10 +3253,10 @@ window.TRIP_DATA = {
       seatsAssigned: true,
       baggageSummary: "每人：託運 20kg、隨身 7kg（內含）",
       passengers: [
-        { name: "TZU HSUAN LIU", nick: "阿萱", seat: "39C", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
-        { name: "CHIA HUI LIN", nick: "茶米", seat: "39D", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
-        { name: "TING YI CHIANG", nick: "阿亭", seat: "39E", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
-        { name: "SHIH HUI KUO", nick: "阿瓜", seat: "39F", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
+        { name: "TZU HSUAN LIU", nick: "阿萱", zhName: "劉姿萱", seat: "39C", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
+        { name: "CHIA HUI LIN", nick: "茶米", zhName: "林佳慧", seat: "39D", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
+        { name: "TING YI CHIANG", nick: "阿亭", zhName: "江亭儀", seat: "39E", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
+        { name: "SHIH HUI KUO", nick: "阿瓜", zhName: "郭式惠", seat: "39F", checked: "20kg", carry: "7kg", extra: "Zero Change Fee ×1" },
       ],
       note: "抵達後辦理入境，接南海電鐵 Rapi:t 直達難波。",
     },
@@ -3287,10 +3287,10 @@ window.TRIP_DATA = {
       seatsAssigned: false,
       baggageSummary: "每人：託運 20kg（已加購）、手提 7kg（已加購）",
       passengers: [
-        { name: "CHIA HUI LIN", nick: "茶米", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
-        { name: "TZU HSUAN LIU", nick: "阿萱", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
-        { name: "TING YI CHIANG", nick: "阿亭", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
-        { name: "SHIH HUI KUO", nick: "阿瓜", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
+        { name: "CHIA HUI LIN", nick: "茶米", zhName: "林佳慧", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
+        { name: "TZU HSUAN LIU", nick: "阿萱", zhName: "劉姿萱", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
+        { name: "TING YI CHIANG", nick: "阿亭", zhName: "江亭儀", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
+        { name: "SHIH HUI KUO", nick: "阿瓜", zhName: "郭式惠", seat: "現場選位", checked: "20kg", carry: "7kg", extra: "" },
       ],
       note: "建議 12:20 前抵達機場，預留安檢與免稅補貨時間。捷星可於出發前 48 小時網上預辦登機與選位。",
     },
@@ -4152,16 +4152,17 @@ window.TRIP_DATA = {
     const paxRows = (f.passengers || [])
       .map((p) => {
         const nick = p.nick || "";
+        const zh = p.zhName || nick;
         const av = flightNickAvatar(nick);
         const isMe = me && nick === me;
-        const nickLine = nick
+        const zhLine = zh
           ? `<span class="pax-nick">${av ? escapeHtml(av) + " " : ""}${escapeHtml(
-              nick
+              zh
             )}</span>`
           : "";
         return `
         <tr class="${isMe ? "is-me" : ""}">
-          <td class="pax-name">${nickLine}<span class="pax-en">${escapeHtml(
+          <td class="pax-name">${zhLine}<span class="pax-en">${escapeHtml(
             p.name
           )}</span></td>
           <td class="pax-seat">${escapeHtml(p.seat || "—")}</td>
@@ -4178,7 +4179,7 @@ window.TRIP_DATA = {
         .seat || (f.seatsAssigned ? "—" : "TBA");
     const stubSeat = mine ? mine.seat || "—" : fallbackSeat;
     const stubPax = mine
-      ? `${flightNickAvatar(mine.nick) || ""} ${mine.nick}`.trim()
+      ? `${flightNickAvatar(mine.nick) || ""} ${mine.zhName || mine.nick}`.trim()
       : "PASSENGER";
     const isReturn = f.id === "return" || f.direction === "回程";
 
