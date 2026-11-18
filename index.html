@@ -3134,7 +3134,7 @@ img {
                 <ul class="game-rules">
                   <li><strong>🧨 限時傳炸彈：</strong>炸彈會隨機爆炸！拿到炸彈快點別人頭像「甩鍋」，爆炸瞬間在誰手上誰受罰。</li>
                   <li><strong>🏎️ 動物狂點賽車：</strong>倒數 3、2、1 後瘋狂連點「⚡ 加速」，跑最後一名就是買單苦主！</li>
-                  <li><strong>🪜 小朋友下樓梯：</strong>踩到會站穩，走到邊緣才下樓；上方會擠、掉出框底也出局。底部有京都妖怪時不時伸手抓人；越高越難，畫面會閃爍、出現懷舊破裂。可選「單人」或「連線」。</li>
+                  <li><strong>🪜 小朋友下樓梯：</strong>踩到階梯會站穩，走到邊緣才下樓；沒踩到就會往下掉，碰到框底地板即出局。上方會擠；底部妖怪時不時伸手。越高越難、畫面會閃爍破裂。可選「單人」或「連線」。</li>
                 </ul>
               </article>
             </div>
@@ -4901,10 +4901,11 @@ window.TRIP_DATA = {
     let raf = 0;
     let moveDir = 0;
     let lastDir = 0;
-    let holdLeft = false;
-    let holdRight = false;
     const keyHeld = new Set();
+    /** @type {Map<number, -1|1>} */
+    const pointerHeld = new Map();
     let world = null;
+    const FLOOR_Y = H - 28; // 畫面底部地板（碰到就死）
 
     function onlineReady() {
       return !!(stairsApi.online && stairsApi.online.ready && stairsApi.online.ready());
@@ -5020,6 +5021,7 @@ window.TRIP_DATA = {
         ground: first,
         cam: Math.max(0, first.y - H * 0.35),
         tick: 0,
+        standT: 0,
         yokai: {
           phase: "idle",
           t: 0,
@@ -5038,16 +5040,8 @@ window.TRIP_DATA = {
     }
 
     function drawYokai(handReach) {
-      // 底部深淵＋京都鬼面
-      const pitTop = H - 52;
-      const grad = ctx.createLinearGradient(0, pitTop, 0, H);
-      grad.addColorStop(0, "rgba(20,8,12,0)");
-      grad.addColorStop(0.35, "rgba(28,6,10,0.55)");
-      grad.addColorStop(1, "rgba(12,2,4,0.95)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, pitTop, W, H - pitTop);
-
-      const faceY = H - 8;
+      // 地板縫裡探出的京都鬼面
+      const faceY = FLOOR_Y + 18;
       const faceX = W * 0.5;
       // 鬼角
       ctx.fillStyle = "#2a1210";
@@ -5097,7 +5091,7 @@ window.TRIP_DATA = {
       if (handReach <= 0.02) return;
 
       const hx = world.yokai.handX;
-      const tipY = H - 20 - handReach * (H * 0.55);
+      const tipY = FLOOR_Y - handReach * (H * 0.52);
       // 妖手臂
       ctx.strokeStyle = "#5a2a28";
       ctx.lineWidth = 16;
@@ -5218,7 +5212,16 @@ window.TRIP_DATA = {
       ctx.textBaseline = "middle";
       ctx.fillText(face, world.px, py);
 
-      // 底部京都妖怪（手會伸上來）
+      // 底部地板（碰到就死）＋京都妖怪
+      ctx.fillStyle = "#2a1814";
+      ctx.fillRect(0, FLOOR_Y, W, H - FLOOR_Y);
+      ctx.fillStyle = "#5c3a32";
+      ctx.fillRect(0, FLOOR_Y, W, 4);
+      ctx.fillStyle = "rgba(232, 120, 90, 0.35)";
+      ctx.font = "11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("⚠ 地板・碰到出局", W / 2, FLOOR_Y + 14);
       drawYokai(world.yokai ? world.yokai.reach : 0);
 
       // 懷舊破裂／燈光閃爍（越難越常）
@@ -5287,19 +5290,23 @@ window.TRIP_DATA = {
         level: steps / 8,
         steps,
         move: 2.85 + steps * 0.26,
-        gravity: 0.18 + steps * 0.02,
-        maxFall: 5.4 + steps * 0.38,
-        stepOff: 0.62 + steps * 0.05,
+        gravity: 0.28 + steps * 0.025,
+        maxFall: 7.2 + steps * 0.4,
+        stepOff: 0.9 + steps * 0.06,
         pressure: 0.5 + steps * 0.2,
         gap: Math.max(52, Math.round(68 - steps * 1.8)),
       };
     }
 
     function refreshMoveDir() {
-      const left = holdLeft || keyHeld.has("L");
-      const right = holdRight || keyHeld.has("R");
+      let left = keyHeld.has("L");
+      let right = keyHeld.has("R");
+      pointerHeld.forEach((dir) => {
+        if (dir < 0) left = true;
+        if (dir > 0) right = true;
+      });
       if (left && right) {
-        // 同時按：跟最後按下的方向走，避免貼牆後按反向被鎖死
+        // 同時按：跟最後按下的方向走
         moveDir = lastDir || 0;
       } else if (left) {
         moveDir = -1;
@@ -5307,7 +5314,15 @@ window.TRIP_DATA = {
         moveDir = 1;
       } else {
         moveDir = 0;
+        lastDir = 0;
       }
+    }
+
+    function clearAllMoveInput() {
+      keyHeld.clear();
+      pointerHeld.clear();
+      moveDir = 0;
+      lastDir = 0;
     }
 
     function step() {
@@ -5315,11 +5330,14 @@ window.TRIP_DATA = {
       world.tick++;
       const diff = difficulty();
       refreshMoveDir();
-      world.px += moveDir * diff.move;
+      // 只有按住左右才移動；不再被移動階梯帶走（避免「自己往左／右飄」）
+      if (moveDir !== 0) {
+        world.px += moveDir * diff.move;
+      }
       if (world.px < 10) world.px = 10;
       if (world.px > W - 10) world.px = W - 10;
 
-      // 階梯左右移動（關卡升高後）
+      // 階梯左右移動（關卡升高後）；人不會跟著漂，階移開就會掉
       for (const p of world.platforms) {
         if (!p.vx) continue;
         p.x += p.vx;
@@ -5331,12 +5349,6 @@ window.TRIP_DATA = {
           p.vx = -Math.abs(p.vx);
         }
       }
-      // 站在移動階上會跟著漂
-      if (world.ground && world.ground.vx) {
-        world.px += world.ground.vx;
-        if (world.px < 10) world.px = 10;
-        if (world.px > W - 10) world.px = W - 10;
-      }
 
       // 站在樓梯上：不會穿越，要左右走到邊緣才落下
       if (world.ground) {
@@ -5346,11 +5358,20 @@ window.TRIP_DATA = {
           world.py = g.y - 10;
           world.pvy = 0;
           world.onGround = true;
+          world.standT = (world.standT || 0) + 1;
           markFloor(g);
+          // 同一階站太久：強制落下，不能停在中間硬撐
+          if (world.standT > 70) {
+            world.ground = null;
+            world.onGround = false;
+            world.pvy = diff.stepOff + 0.8;
+            world.standT = 0;
+          }
         } else {
           world.ground = null;
           world.onGround = false;
           world.pvy = diff.stepOff;
+          world.standT = 0;
         }
       }
 
@@ -5359,6 +5380,7 @@ window.TRIP_DATA = {
         if (world.pvy > diff.maxFall) world.pvy = diff.maxFall;
         world.py += world.pvy;
         world.onGround = false;
+        world.standT = 0;
 
         for (const p of world.platforms) {
           const withinX = world.px >= p.x && world.px <= p.x + p.w;
@@ -5378,6 +5400,7 @@ window.TRIP_DATA = {
             world.pvy = 0;
             world.onGround = true;
             world.ground = p;
+            world.standT = 0;
             markFloor(p);
             break;
           }
@@ -5400,13 +5423,13 @@ window.TRIP_DATA = {
       }
       world.platforms = world.platforms.filter((p) => p.y > world.cam - 60);
 
-      // 持續往下擠；自由落體時不完全跟著追，才會有掉出框底的緊張感
+      // 鏡頭：緩緩下壓；只有「站在階梯上」時才跟著往下對齊
+      // 沒踩到階梯時鏡頭不追人 → 角色會依重力掉向框底，碰到地板就死
       world.cam += diff.pressure;
-      const screenY = world.py - world.cam;
-      if (world.onGround || screenY < H * 0.7) {
+      if (world.onGround) {
         const followCam = world.py - H * 0.42;
         if (followCam > world.cam) {
-          world.cam += (followCam - world.cam) * 0.18;
+          world.cam += (followCam - world.cam) * 0.2;
         }
       }
 
@@ -5416,9 +5439,9 @@ window.TRIP_DATA = {
         return;
       }
 
-      // 掉出畫框底部 → 出局
-      if (world.py - world.cam > H - 4) {
-        die("掉出框外！");
+      // 沒站在階梯上就會往下掉；腳碰到框底地板 → 出局
+      if (world.py - world.cam + 10 >= FLOOR_Y) {
+        die("碰到地板！");
         return;
       }
 
@@ -5460,11 +5483,11 @@ window.TRIP_DATA = {
         yk.reach = Math.min(maxReach, yk.reach + riseSpeed);
         // 緩緩追玩家 x（越高追越緊）
         yk.handX += (world.px - yk.handX) * (0.03 + diff.steps * 0.01);
-        const tipY = H - 20 - yk.reach * (H * 0.55);
+        const tipY = FLOOR_Y - yk.reach * (H * 0.52);
         const nearX = Math.abs(yk.handX - world.px) < 22 + diff.steps;
         const nearY = screenY > tipY - 14 && screenY < tipY + 30;
         // 只在手伸夠高、人又偏畫面下方時才吃得到
-        if (yk.reach > maxReach * 0.72 && screenY > H * 0.48 && nearX && nearY) {
+        if (yk.reach > maxReach * 0.72 && screenY > H * 0.45 && nearX && nearY) {
           die("被京都妖怪吃掉了！");
           return;
         }
@@ -5644,6 +5667,7 @@ window.TRIP_DATA = {
 
     function startLocal(roundId) {
       cancelAnimationFrame(raf);
+      clearAllMoveInput();
       stairsApi.phase = "playing";
       stairsApi.roundId = roundId || `solo-${Date.now().toString(36)}`;
       if (stairsApi.mode === "solo") stairsApi.scores = {};
@@ -5652,7 +5676,7 @@ window.TRIP_DATA = {
       if (statusEl) {
         statusEl.hidden = false;
         statusEl.textContent =
-          "走到邊緣才下樓；底部妖怪會伸手！越高越閃、會破裂；掉出框底也出局";
+          "沒踩到階梯會往下掉，碰到框底地板就出局！";
       }
       startBtn.hidden = true;
       draw();
@@ -5700,58 +5724,38 @@ window.TRIP_DATA = {
       }
     });
 
-    function setHold(dir, on) {
-      if (dir < 0) holdLeft = on;
-      if (dir > 0) holdRight = on;
-      if (on) lastDir = dir;
-      refreshMoveDir();
-    }
-
-    const leftBtn = document.getElementById("stairs-left");
-    const rightBtn = document.getElementById("stairs-right");
-    [
-      [leftBtn, -1],
-      [rightBtn, 1],
-    ].forEach(([btn, dir]) => {
-      if (!btn) return;
-      const down = (e) => {
+    function bindDirPointer(el, fixedDir) {
+      if (!el) return;
+      el.addEventListener("pointerdown", (e) => {
         e.preventDefault();
         try {
-          btn.setPointerCapture(e.pointerId);
+          el.setPointerCapture(e.pointerId);
         } catch (_) {
           /* ignore */
         }
-        setHold(dir, true);
+        const dir =
+          fixedDir != null
+            ? fixedDir
+            : e.clientX - el.getBoundingClientRect().left <
+                el.getBoundingClientRect().width / 2
+              ? -1
+              : 1;
+        pointerHeld.set(e.pointerId, dir);
+        lastDir = dir;
+        refreshMoveDir();
+      });
+      const release = (e) => {
+        pointerHeld.delete(e.pointerId);
+        refreshMoveDir();
       };
-      const up = (e) => {
-        e.preventDefault();
-        setHold(dir, false);
-      };
-      btn.addEventListener("pointerdown", down);
-      btn.addEventListener("pointerup", up);
-      btn.addEventListener("pointercancel", up);
-      btn.addEventListener("lostpointercapture", up);
-    });
+      el.addEventListener("pointerup", release);
+      el.addEventListener("pointercancel", release);
+      el.addEventListener("lostpointercapture", release);
+    }
 
-    canvas.addEventListener("pointerdown", (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const dir = x < rect.width / 2 ? -1 : 1;
-      try {
-        canvas.setPointerCapture(e.pointerId);
-      } catch (_) {
-        /* ignore */
-      }
-      setHold(dir, true);
-    });
-    const clearCanvasHold = () => {
-      holdLeft = false;
-      holdRight = false;
-      refreshMoveDir();
-    };
-    canvas.addEventListener("pointerup", clearCanvasHold);
-    canvas.addEventListener("pointercancel", clearCanvasHold);
-    canvas.addEventListener("lostpointercapture", clearCanvasHold);
+    bindDirPointer(document.getElementById("stairs-left"), -1);
+    bindDirPointer(document.getElementById("stairs-right"), 1);
+    bindDirPointer(canvas, null);
 
     window.addEventListener("keydown", (e) => {
       const left = e.key === "ArrowLeft" || e.key === "a" || e.key === "A";
@@ -5778,11 +5782,9 @@ window.TRIP_DATA = {
       if (right) keyHeld.delete("R");
       refreshMoveDir();
     });
-    window.addEventListener("blur", () => {
-      keyHeld.clear();
-      holdLeft = false;
-      holdRight = false;
-      moveDir = 0;
+    window.addEventListener("blur", () => clearAllMoveInput());
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) clearAllMoveInput();
     });
 
     // idle preview frame
